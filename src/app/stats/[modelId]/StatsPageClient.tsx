@@ -45,16 +45,21 @@ export function StatsPageClient() {
 
   const fetchModelAndStats = async () => {
     try {
-      const [modelsRes, statsRes] = await Promise.all([
-        fetch('/api/models'),
+      const [modelRes, statsRes] = await Promise.all([
+        fetch(`/api/models/${encodeURIComponent(modelId)}`),
         fetch(`/api/stats/${encodeURIComponent(modelId)}?days=${days}`),
       ]);
 
-      const modelsData = await modelsRes.json();
+      if (!modelRes.ok) {
+        setModel(null);
+        setLoading(false);
+        return;
+      }
+
+      const modelData = await modelRes.json();
       const statsData = await statsRes.json();
 
-      const currentModel = modelsData.models.find((m: Model) => m.id === modelId);
-      setModel(currentModel);
+      setModel(modelData);
 
       const formattedStats = statsData.historical.map((stat: {
         stat_date: string;
