@@ -5,11 +5,14 @@ import { useParams } from 'next/navigation';
 import Link from 'next/link';
 import { StatsChart } from '@/components/StatsChart';
 import { Model } from '@/types';
-import { Brain, ArrowLeft, TrendingUp, TrendingDown, Minus, Users, Calendar, Sparkles } from 'lucide-react';
+import { Brain, ArrowLeft, TrendingUp, TrendingDown, Minus, Users, Calendar, Sparkles, Star } from 'lucide-react';
 import { getMoodEmoji, getMoodColor, cn } from '@/lib/utils';
 import CommentSection from '@/components/CommentSection';
 import { ThemeToggle } from '@/components/ThemeToggle';
 import Header from '@/components/Header';
+import { VoteModal } from '@/components/VoteModal';
+import { Vote } from '@/types';
+import { trackVote } from '@/lib/analytics';
 
 interface StatsData {
   date: string;
@@ -27,9 +30,19 @@ export default function ModelStatsPage() {
   const [stats, setStats] = useState<StatsData[]>([]);
   const [loading, setLoading] = useState(true);
   const [days, setDays] = useState(30);
+  const [showVoteModal, setShowVoteModal] = useState(false);
+  const [hasVoted, setHasVoted] = useState(false);
 
   useEffect(() => {
     fetchModelAndStats();
+    // Check if already voted
+    if (typeof window !== 'undefined') {
+      const voted = sessionStorage.getItem('votedModels');
+      if (voted) {
+        const votedSet = new Set(JSON.parse(voted));
+        setHasVoted(votedSet.has(modelId));
+      }
+    }
   }, [modelId, days]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const fetchModelAndStats = async () => {
@@ -81,6 +94,39 @@ export default function ModelStatsPage() {
     }
   };
 
+  const handleVoteSubmit = async (vote: Vote) => {
+    try {
+      const res = await fetch('/api/vote', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(vote),
+      });
+
+      if (res.ok) {
+        // Mark model as voted
+        setHasVoted(true);
+        if (typeof window !== 'undefined') {
+          const voted = sessionStorage.getItem('votedModels');
+          const votedSet = new Set(voted ? JSON.parse(voted) : []);
+          votedSet.add(modelId);
+          sessionStorage.setItem('votedModels', JSON.stringify(Array.from(votedSet)));
+        }
+        
+        // Refresh stats to show updated data
+        fetchModelAndStats();
+        
+        // Track vote with Google Analytics
+        trackVote(vote.modelId, ((vote.ratings.performance || 0) + (vote.ratings.intelligence || 0)) / 2);
+      } else {
+        const error = await res.json();
+        alert(error.error || 'Failed to submit vote');
+      }
+    } catch (error) {
+      console.error('Failed to submit vote:', error);
+      alert('Failed to submit vote. Please try again.');
+    }
+  };
+
   if (loading) {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center">
@@ -107,6 +153,23 @@ export default function ModelStatsPage() {
       />
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        {/* Rate Button */}
+        <div className="mb-6 flex justify-end">
+          <button
+            onClick={() => setShowVoteModal(true)}
+            disabled={hasVoted}
+            className={cn(
+              "flex items-center gap-2 px-6 py-3 rounded-lg font-medium transition-all",
+              hasVoted
+                ? "bg-muted text-muted-foreground cursor-not-allowed"
+                : "bg-primary text-primary-foreground hover:bg-primary/90 shadow-lg hover:shadow-xl transform hover:scale-105"
+            )}
+          >
+            <Star className="w-5 h-5" />
+            {hasVoted ? "Already Rated" : "Rate This Model"}
+          </button>
+        </div>
+
         <div className="mb-8">
           <div className="bg-card rounded-xl p-6 shadow-sm border">
             <div className="flex items-center justify-between mb-6">
@@ -236,6 +299,15 @@ export default function ModelStatsPage() {
           </p>
         </div>
       </div>
+
+      {model && (
+        <VoteModal
+          model={model}
+          open={showVoteModal}
+          onOpenChange={setShowVoteModal}
+          onVoteSubmit={handleVoteSubmit}
+        />
+      )}
     </main>
   );
 }

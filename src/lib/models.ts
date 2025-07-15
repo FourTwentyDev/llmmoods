@@ -14,18 +14,8 @@ export async function syncModelsFromOpenRouter(): Promise<void> {
     const response = await fetch('https://openrouter.ai/api/v1/models');
     const data = await response.json();
     
-    // Filter for popular/relevant models
-    const popularProviders = ['openai', 'anthropic', 'google', 'meta', 'mistralai', 'deepseek', 'x-ai'];
-    const relevantModels = data.data.filter((model: { id: string; name: string }) => {
-      const provider = model.id.split('/')[0].toLowerCase();
-      return popularProviders.includes(provider) || 
-             model.name.toLowerCase().includes('gpt') ||
-             model.name.toLowerCase().includes('claude') ||
-             model.name.toLowerCase().includes('gemini') ||
-             model.name.toLowerCase().includes('llama') ||
-             model.name.toLowerCase().includes('mixtral') ||
-             model.name.toLowerCase().includes('mistral');
-    });
+    // Get all models from OpenRouter
+    const relevantModels = data.data;
     
     for (const model of relevantModels) {
       // Determine category based on modality
@@ -37,19 +27,21 @@ export async function syncModelsFromOpenRouter(): Promise<void> {
       }
       
       await query(
-        `INSERT INTO models (id, name, provider, context_length, category) 
-         VALUES (?, ?, ?, ?, ?) 
+        `INSERT INTO models (id, name, provider, context_length, category, openrouter_created_at) 
+         VALUES (?, ?, ?, ?, ?, ?) 
          ON DUPLICATE KEY UPDATE 
          name = VALUES(name), 
          context_length = VALUES(context_length),
          category = VALUES(category),
+         openrouter_created_at = VALUES(openrouter_created_at),
          updated_at = NOW()`,
         [
           model.id,
           model.name || model.id,
           model.id.split('/')[0] || 'unknown',
           model.context_length || null,
-          category
+          category,
+          model.created || null
         ]
       );
     }

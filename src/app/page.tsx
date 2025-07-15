@@ -32,6 +32,8 @@ export default function HomePage() {
   const [selectedVendor, setSelectedVendor] = useState<string>('all');
   const [currentPage, setCurrentPage] = useState(1);
   const [uniqueVendors, setUniqueVendors] = useState<string[]>([]);
+  const [viewMode, setViewMode] = useState<'featured' | 'all'>('featured');
+  const [sortBy, setSortBy] = useState<'newest' | 'oldest' | 'context'>('newest');
   const modelsPerPage = 12;
 
   useEffect(() => {
@@ -44,7 +46,7 @@ export default function HomePage() {
         setVotedModels(new Set(JSON.parse(voted)));
       }
     }
-  }, []);
+  }, [viewMode, filter, selectedVendor, debouncedSearch, sortBy]);
 
   // Debounce search
   useEffect(() => {
@@ -54,26 +56,35 @@ export default function HomePage() {
       
       // Track search if query is not empty
       if (searchQuery.trim()) {
-        const results = models.filter(model => 
-          model.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-          model.provider.toLowerCase().includes(searchQuery.toLowerCase())
-        );
-        trackSearch(searchQuery, results.length);
+        trackSearch(searchQuery, models.length);
       }
     }, 300);
 
     return () => clearTimeout(timer);
-  }, [searchQuery, models]);
+  }, [searchQuery]);
 
   const fetchModels = async () => {
     try {
-      const res = await fetch('/api/models');
+      // Build query params
+      const params = new URLSearchParams({
+        view: viewMode,
+        ...(filter !== 'all' && { category: filter }),
+        ...(selectedVendor !== 'all' && { provider: selectedVendor }),
+        ...(debouncedSearch && { search: debouncedSearch }),
+        ...(viewMode === 'all' && { sort: sortBy })
+      });
+      
+      const res = await fetch(`/api/models?${params}`);
       const data = await res.json();
       setModels(data.models);
       
-      // Extract unique vendors
-      const vendors = [...new Set(data.models.map((m: Model) => m.provider))].sort();
-      setUniqueVendors(vendors as string[]);
+      // Only fetch vendor list once or when viewMode changes
+      if (uniqueVendors.length === 0 || viewMode) {
+        const allModelsRes = await fetch('/api/models?view=all');
+        const allModelsData = await allModelsRes.json();
+        const vendors = [...new Set(allModelsData.models.map((m: Model) => m.provider))].sort();
+        setUniqueVendors(vendors as string[]);
+      }
       
       // Calculate hot models (high vote velocity)
       const hot = data.models
@@ -143,15 +154,8 @@ export default function HomePage() {
     }
   };
 
-  const filteredModels = models.filter(model => {
-    const matchesCategory = filter === 'all' || model.category === filter;
-    const matchesVendor = selectedVendor === 'all' || model.provider === selectedVendor;
-    const matchesSearch = debouncedSearch === '' || 
-      model.name.toLowerCase().includes(debouncedSearch.toLowerCase()) ||
-      model.provider.toLowerCase().includes(debouncedSearch.toLowerCase());
-    
-    return matchesCategory && matchesVendor && matchesSearch;
-  });
+  // Models are already filtered server-side
+  const filteredModels = models;
 
   // Pagination
   const totalPages = Math.ceil(filteredModels.length / modelsPerPage);
@@ -160,12 +164,32 @@ export default function HomePage() {
     currentPage * modelsPerPage
   );
 
-  const popularModels = filteredModels
+  // Define flagship models - these are the most popular/used models
+  const flagshipModelIds = [
+    'gpt-4o', // OpenAI's flagship
+    'claude-3-5-sonnet', // Anthropic's flagship
+    'gemini-2.0-flash-exp', // Google's latest/fastest
+    'grok-2' // X-AI's flagship
+  ];
+
+  // When in featured view, show flagship models
+  let flagshipModels: Model[] = [];
+  let trendingModels: Model[] = [];
+  
+  if (viewMode === 'featured' && filter === 'all' && selectedVendor === 'all' && debouncedSearch === '') {
+    flagshipModels = flagshipModelIds
+      .map(id => models.find(m => m.id === id || m.id.includes(id)))
+      .filter((m): m is Model => m !== undefined);
+  }
+
+  // Always show trending models (most voted today)
+  trendingModels = filteredModels
+    .filter(m => !flagshipModels.includes(m)) // Don't duplicate flagship models
     .sort((a, b) => (b.votes_today || 0) - (a.votes_today || 0))
     .slice(0, 3);
 
   const otherModels = paginatedModels.filter(
-    model => !popularModels.includes(model)
+    model => !flagshipModels.includes(model) && !trendingModels.includes(model)
   );
 
   return (
@@ -360,17 +384,51 @@ export default function HomePage() {
         {/* Search and Filter Section */}
         <div className="mb-8">
           <div className="bg-card rounded-xl border p-6">
-            {/* Search Bar */}
+            {/* Search Bar and View Mode Toggle */}
             <div className="mb-4">
-              <div className="relative">
-                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground w-5 h-5" />
-                <input
-                  type="text"
-                  placeholder="Search models by name or provider..."
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  className="w-full pl-10 pr-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent bg-background text-foreground"
-                />
+              <div className="flex flex-col sm:flex-row gap-4">
+                <div className="relative flex-1">
+                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground w-5 h-5" />
+                  <input
+                    type="text"
+                    placeholder="Search models by name or provider..."
+                    value={searchQuery}
+                    onChange={(e) => {
+                      setSearchQuery(e.target.value);
+                      // Auto-switch to "All Models" when searching
+                      if (e.target.value.trim() && viewMode === 'featured') {
+                        setViewMode('all');
+                      }
+                    }}
+                    className="w-full pl-10 pr-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent bg-background text-foreground"
+                  />
+                </div>
+                
+                {/* View Mode Toggle */}
+                <div className="flex items-center gap-2 border rounded-lg p-1">
+                  <button
+                    onClick={() => setViewMode('featured')}
+                    className={cn(
+                      "px-4 py-2 rounded-md font-medium transition-all",
+                      viewMode === 'featured'
+                        ? "bg-primary text-primary-foreground"
+                        : "text-muted-foreground hover:text-foreground"
+                    )}
+                  >
+                    Latest Models
+                  </button>
+                  <button
+                    onClick={() => setViewMode('all')}
+                    className={cn(
+                      "px-4 py-2 rounded-md font-medium transition-all",
+                      viewMode === 'all'
+                        ? "bg-primary text-primary-foreground"
+                        : "text-muted-foreground hover:text-foreground"
+                    )}
+                  >
+                    All Models
+                  </button>
+                </div>
               </div>
             </div>
             
@@ -410,6 +468,10 @@ export default function HomePage() {
                     setSelectedVendor(e.target.value);
                     setCurrentPage(1);
                     trackFilter('vendor', e.target.value);
+                    // Auto-switch to "All Models" when selecting a provider
+                    if (e.target.value !== 'all' && viewMode === 'featured') {
+                      setViewMode('all');
+                    }
                   }}
                   className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent bg-background text-foreground"
                 >
@@ -421,6 +483,25 @@ export default function HomePage() {
                   ))}
                 </select>
               </div>
+              
+              {/* Sort Filter - Only visible in "All Models" view */}
+              {viewMode === 'all' && (
+                <div className="sm:w-48">
+                  <label className="block text-sm font-medium text-foreground mb-2">Sort By</label>
+                  <select
+                    value={sortBy}
+                    onChange={(e) => {
+                      setSortBy(e.target.value as 'newest' | 'oldest' | 'context');
+                      setCurrentPage(1);
+                    }}
+                    className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent bg-background text-foreground"
+                  >
+                    <option value="newest">Newest First</option>
+                    <option value="oldest">Oldest First</option>
+                    <option value="context">Context Length</option>
+                  </select>
+                </div>
+              )}
             </div>
             
             {/* Results Count */}
@@ -438,13 +519,44 @@ export default function HomePage() {
           </div>
         ) : (
           <>
-            {popularModels.length > 0 && (
+            {/* Flagship Models Section - Special Design */}
+            {flagshipModels.length > 0 && (
               <section className="mb-12">
-                <h2 className="text-xl font-semibold mb-4 text-foreground">
+                <h2 className="text-2xl font-bold mb-6 text-foreground flex items-center gap-2">
+                  <Award className="w-7 h-7 text-yellow-500" />
+                  Flagship Models
+                </h2>
+                <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+                  {flagshipModels.map((model) => (
+                    <div
+                      key={model.id}
+                      className="relative bg-gradient-to-br from-primary/10 to-primary/5 rounded-xl border-2 border-primary/20 hover:border-primary/40 transition-all"
+                    >
+                      <div className="absolute -top-2 -right-2">
+                        <span className="bg-yellow-500 text-black text-xs font-bold px-2 py-1 rounded-full">
+                          FLAGSHIP
+                        </span>
+                      </div>
+                      <ModelCard
+                        model={model}
+                        onVoteClick={() => setSelectedModel(model)}
+                        hasVoted={votedModels.has(model.id)}
+                      />
+                    </div>
+                  ))}
+                </div>
+              </section>
+            )}
+
+            {/* Trending Today Section */}
+            {trendingModels.length > 0 && (
+              <section className="mb-12">
+                <h2 className="text-xl font-semibold mb-4 text-foreground flex items-center gap-2">
+                  <TrendingUp className="w-6 h-6 text-green-500" />
                   Trending Today
                 </h2>
                 <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-                  {popularModels.map((model) => (
+                  {trendingModels.map((model) => (
                     <ModelCard
                       key={model.id}
                       model={model}
