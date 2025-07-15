@@ -77,7 +77,7 @@ export default function Header({
             ))}
             
             <a
-              href="https://github.com/llmmoods/llmmoods"
+              href="https://github.com/llmmoods/https://github.com/FourTwentyDev/llmmoods"
               target="_blank"
               rel="noopener noreferrer"
               className="flex items-center gap-2 text-muted-foreground hover:text-foreground"
