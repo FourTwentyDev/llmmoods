@@ -31,14 +31,14 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   }
 
   const modelUrls = modelIds.map((id) => ({
-    url: `${baseUrl}/models/${id}`,
+    url: `${baseUrl}/models/${encodeURIComponent(id)}`,
     lastModified: new Date(),
     changeFrequency: 'daily' as const,
     priority: 0.8,
   }));
 
   const statsUrls = modelIds.map((id) => ({
-    url: `${baseUrl}/stats/${id}`,
+    url: `${baseUrl}/stats/${encodeURIComponent(id)}`,
     lastModified: new Date(),
     changeFrequency: 'hourly' as const,
     priority: 0.7,
