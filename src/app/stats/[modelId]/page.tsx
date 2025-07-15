@@ -7,6 +7,7 @@ import { StatsChart } from '@/components/StatsChart';
 import { Model } from '@/types';
 import { Brain, ArrowLeft, TrendingUp, TrendingDown, Minus, Users, Calendar, Sparkles } from 'lucide-react';
 import { getMoodEmoji, getMoodColor, cn } from '@/lib/utils';
+import CommentSection from '@/components/CommentSection';
 
 interface StatsData {
   date: string;
@@ -236,6 +237,11 @@ export default function ModelStatsPage() {
               );
             })}
           </div>
+        </div>
+
+        {/* Comments Section */}
+        <div className="mt-8">
+          <CommentSection modelId={modelId} />
         </div>
 
         {/* Development Credit */}
