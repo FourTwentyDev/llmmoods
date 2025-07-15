@@ -70,7 +70,7 @@ CREATE TABLE IF NOT EXISTS daily_stats (
 CREATE TABLE IF NOT EXISTS rate_limits (
     fingerprint_hash VARCHAR(64) NOT NULL,
     action_type ENUM('vote', 'comment') NOT NULL,
-    model_id VARCHAR(255) DEFAULT NULL,
+    model_id VARCHAR(255) NOT NULL DEFAULT '__GLOBAL__',
     count INT DEFAULT 1,
     window_start TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     PRIMARY KEY (fingerprint_hash, action_type, model_id),

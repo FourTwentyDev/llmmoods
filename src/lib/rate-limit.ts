@@ -20,13 +20,10 @@ export async function checkRateLimit(
   const windowSeconds = Math.floor(windowMs / 1000);
   
   // For votes, check per model. For comments, check globally
-  const whereClause = action === 'vote' && modelId 
-    ? 'WHERE fingerprint_hash = ? AND action_type = ? AND model_id = ? AND window_start > DATE_SUB(NOW(), INTERVAL ? SECOND)'
-    : 'WHERE fingerprint_hash = ? AND action_type = ? AND model_id IS NULL AND window_start > DATE_SUB(NOW(), INTERVAL ? SECOND)';
+  const effectiveModelId = action === 'vote' && modelId ? modelId : '__GLOBAL__';
   
-  const params = action === 'vote' && modelId
-    ? [fingerprintHash, action, modelId, windowSeconds]
-    : [fingerprintHash, action, windowSeconds];
+  const whereClause = 'WHERE fingerprint_hash = ? AND action_type = ? AND model_id = ? AND window_start > DATE_SUB(NOW(), INTERVAL ? SECOND)';
+  const params = [fingerprintHash, action, effectiveModelId, windowSeconds];
   
   const existingLimit = await queryOne<RateLimit>(
     `SELECT * FROM rate_limits ${whereClause}`,
@@ -35,14 +32,10 @@ export async function checkRateLimit(
   
   if (!existingLimit) {
     // First action in window
-    const insertParams = action === 'vote' && modelId
-      ? [fingerprintHash, action, modelId]
-      : [fingerprintHash, action, null];
-      
     await query(
       `INSERT INTO rate_limits (fingerprint_hash, action_type, model_id, count, window_start) 
        VALUES (?, ?, ?, 1, NOW())`,
-      insertParams
+      [fingerprintHash, action, effectiveModelId]
     );
     return { allowed: true, remaining: maxRequests - 1 };
   }
@@ -52,17 +45,10 @@ export async function checkRateLimit(
   }
   
   // Increment counter
-  const updateWhereClause = action === 'vote' && modelId
-    ? 'WHERE fingerprint_hash = ? AND action_type = ? AND model_id = ?'
-    : 'WHERE fingerprint_hash = ? AND action_type = ? AND model_id IS NULL';
-    
-  const updateParams = action === 'vote' && modelId
-    ? [fingerprintHash, action, modelId]
-    : [fingerprintHash, action];
-    
   await query(
-    `UPDATE rate_limits SET count = count + 1 ${updateWhereClause}`,
-    updateParams
+    `UPDATE rate_limits SET count = count + 1 
+     WHERE fingerprint_hash = ? AND action_type = ? AND model_id = ?`,
+    [fingerprintHash, action, effectiveModelId]
   );
   
   return { allowed: true, remaining: maxRequests - existingLimit.count - 1 };

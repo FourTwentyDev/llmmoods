@@ -65,11 +65,14 @@ CREATE TABLE IF NOT EXISTS daily_stats (
 
 -- Rate limiting table
 CREATE TABLE IF NOT EXISTS rate_limits (
-    fingerprint_hash VARCHAR(64) PRIMARY KEY,
+    fingerprint_hash VARCHAR(64) NOT NULL,
     action_type ENUM('vote', 'comment') NOT NULL,
+    model_id VARCHAR(255) NOT NULL DEFAULT '__GLOBAL__',
     count INT DEFAULT 1,
     window_start TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    INDEX idx_window (window_start)
+    PRIMARY KEY (fingerprint_hash, action_type, model_id),
+    INDEX idx_window (window_start),
+    INDEX idx_fingerprint_model (fingerprint_hash, model_id)
 ) ENGINE=InnoDB;
 
 -- Stored procedure to clean old rate limits
