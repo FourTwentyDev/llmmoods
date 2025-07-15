@@ -1,36 +1,102 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# LLM Mood Tracker
+
+Track and compare the daily performance of popular AI language models. Community-driven ratings for GPT-4, Claude, Gemini, and more.
+
+## Features
+
+- 📊 Daily mood tracking for LLMs
+- 🎯 Rate models on Performance, Speed, Intelligence, and Reliability
+- 📈 Historical performance charts
+- 🔒 GDPR-compliant, privacy-first design
+- ⚡ Real-time updates
+- 🚀 SEO optimized
+
+## Tech Stack
+
+- **Frontend**: Next.js 14, TypeScript, Tailwind CSS
+- **Backend**: Next.js API Routes
+- **Database**: MySQL with partitioning
+- **Analytics**: Plausible (GDPR-compliant)
+- **Charts**: Recharts
+- **Rate Limiting**: Fingerprint-based
 
 ## Getting Started
 
-First, run the development server:
+### Prerequisites
 
+- Node.js 18+
+- MySQL 8.0+
+- npm or yarn
+
+### Installation
+
+1. Clone the repository:
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+git clone https://github.com/yourusername/llmmood.git
+cd llmmood
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+2. Install dependencies:
+```bash
+npm install
+```
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+3. Set up environment variables:
+```bash
+cp .env.local.example .env.local
+```
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+Edit `.env.local` with your database credentials and Plausible domain.
 
-## Learn More
+4. Initialize the database:
+```bash
+npm run db:init
+npm run db:seed
+```
 
-To learn more about Next.js, take a look at the following resources:
+5. Run the development server:
+```bash
+npm run dev
+```
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+Open [http://localhost:3000](http://localhost:3000) to see the app.
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## Database Setup
 
-## Deploy on Vercel
+Create a MySQL database and user:
+```sql
+CREATE DATABASE llmmood;
+CREATE USER 'llmmood'@'localhost' IDENTIFIED BY 'your_password';
+GRANT ALL PRIVILEGES ON llmmood.* TO 'llmmood'@'localhost';
+FLUSH PRIVILEGES;
+```
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+## Deployment
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+### Vercel
+
+1. Push to GitHub
+2. Import to Vercel
+3. Add environment variables
+4. Deploy
+
+### Cron Jobs
+
+Set up a daily cron job to sync models:
+```
+0 0 * * * curl https://llmmood.com/api/cron/sync-models -H "Authorization: Bearer YOUR_CRON_SECRET"
+```
+
+## Contributing
+
+Pull requests are welcome! Please read our contributing guidelines first.
+
+## License
+
+MIT License - see LICENSE file for details.
+
+---
+
+<p align="center">
+  Built with ❤️ by <a href="https://fourtwenty.dev">FourTwenty Development</a>
+</p>

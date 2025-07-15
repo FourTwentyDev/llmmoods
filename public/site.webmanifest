@@ -1,0 +1,23 @@
+{
+  "name": "LLM Mood Tracker",
+  "short_name": "LLM Mood",
+  "description": "Track and compare the daily performance of popular AI language models",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#f9fafb",
+  "theme_color": "#3b82f6",
+  "icons": [
+    {
+      "src": "/logo.ico",
+      "sizes": "any",
+      "type": "image/x-icon"
+    },
+    {
+      "src": "/logo.webp",
+      "sizes": "any",
+      "type": "image/webp"
+    }
+  ],
+  "categories": ["productivity", "utilities"],
+  "lang": "en"
+}

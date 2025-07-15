@@ -1,0 +1,14 @@
+/* TEAM */
+Developer: FourTwenty Development
+Site: https://fourtwenty.dev
+Location: Worldwide
+
+/* THANKS */
+Community: All the users who rate and contribute
+Open Source: Next.js, React, Tailwind CSS teams
+
+/* SITE */
+Last update: 2024
+Standards: HTML5, CSS3, ES6+
+Components: React, Next.js, TypeScript
+Software: VS Code, Git, MySQL
