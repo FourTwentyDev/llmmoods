@@ -3,9 +3,9 @@ import { notFound } from 'next/navigation';
 import { StatsPageClient } from './StatsPageClient';
 
 interface PageProps {
-  params: {
+  params: Promise<{
     modelId: string;
-  };
+  }>;
 }
 
 async function getModel(modelId: string) {
@@ -30,7 +30,8 @@ async function getModel(modelId: string) {
 }
 
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
-  const model = await getModel(params.modelId);
+  const { modelId } = await params;
+  const model = await getModel(modelId);
   
   if (!model) {
     return {
@@ -88,7 +89,8 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 
 export default async function ModelStatsPage({ params }: PageProps) {
   // Verify the model exists
-  const model = await getModel(params.modelId);
+  const { modelId } = await params;
+  const model = await getModel(modelId);
   
   if (!model) {
     notFound();
