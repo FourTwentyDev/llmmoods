@@ -10,7 +10,7 @@ interface ModelWithStats extends Model {
   avg_intelligence?: number;
   total_votes?: number;
 }
-import { BarChart3, Github, TrendingUp, Award, Clock, Zap, ChevronRight, Users, Sparkles, Flame, GitCompare, Code2, Search, ChevronLeft } from 'lucide-react';
+import { BarChart3, Github, TrendingUp, TrendingDown, Award, Clock, Zap, ChevronRight, Users, Sparkles, Flame, GitCompare, Code2, Search, ChevronLeft } from 'lucide-react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { getMoodEmoji, cn } from '@/lib/utils';
@@ -21,6 +21,7 @@ import Header from '@/components/Header';
 
 export default function HomePage() {
   const [models, setModels] = useState<Model[]>([]);
+  const [topModels, setTopModels] = useState<Model[]>([]);
   const [selectedModel, setSelectedModel] = useState<Model | null>(null);
   const [votedModels, setVotedModels] = useState<Set<string>>(new Set());
   const [loading, setLoading] = useState(true);
@@ -39,6 +40,7 @@ export default function HomePage() {
   useEffect(() => {
     fetchModels();
     fetchTopPerformers();
+    fetchTopModels();
     // Load voted models from sessionStorage
     if (typeof window !== 'undefined') {
       const voted = sessionStorage.getItem('votedModels');
@@ -123,6 +125,16 @@ export default function HomePage() {
     }
   };
 
+  const fetchTopModels = async () => {
+    try {
+      const res = await fetch('/api/top-models');
+      const data = await res.json();
+      setTopModels(data.models);
+    } catch (error) {
+      console.error('Failed to fetch top models:', error);
+    }
+  };
+
   const handleVoteSubmit = async (vote: Vote) => {
     try {
       const res = await fetch('/api/vote', {
@@ -164,32 +176,22 @@ export default function HomePage() {
     currentPage * modelsPerPage
   );
 
-  // Define flagship models - these are the most popular/used models
-  const flagshipModelIds = [
-    'gpt-4o', // OpenAI's flagship
-    'claude-3-5-sonnet', // Anthropic's flagship
-    'gemini-2.0-flash-exp', // Google's latest/fastest
-    'grok-2' // X-AI's flagship
-  ];
-
-  // When in featured view, show flagship models
-  let flagshipModels: Model[] = [];
-  let trendingModels: Model[] = [];
+  // Create a Set of top model IDs for efficient filtering
+  const topModelIds = new Set(topModels.map(m => m.id));
   
-  if (viewMode === 'featured' && filter === 'all' && selectedVendor === 'all' && debouncedSearch === '') {
-    flagshipModels = flagshipModelIds
-      .map(id => models.find(m => m.id === id || m.id.includes(id)))
-      .filter((m): m is Model => m !== undefined);
-  }
+  let trendingModels: Model[] = [];
 
   // Always show trending models (most voted today)
   trendingModels = filteredModels
-    .filter(m => !flagshipModels.includes(m)) // Don't duplicate flagship models
+    .filter(m => !topModelIds.has(m.id)) // Don't duplicate top models
     .sort((a, b) => (b.votes_today || 0) - (a.votes_today || 0))
     .slice(0, 3);
 
+  // Create a Set of trending model IDs for efficient filtering
+  const trendingModelIds = new Set(trendingModels.map(m => m.id));
+
   const otherModels = paginatedModels.filter(
-    model => !flagshipModels.includes(model) && !trendingModels.includes(model)
+    model => !topModelIds.has(model.id) && !trendingModelIds.has(model.id)
   );
 
   return (
@@ -200,6 +202,150 @@ export default function HomePage() {
         <Header showBackButton={false} />
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        {/* Top Models by Top Providers - Always visible at the top */}
+        {!loading && topModels.length > 0 && filter === 'all' && selectedVendor === 'all' && debouncedSearch === '' && (
+          <section className="mb-12">
+            <div className="mb-10">
+              <div className="flex items-center justify-between mb-2">
+                <div>
+                  <div className="flex items-center gap-3 mb-1">
+                    <div className="h-px flex-1 bg-gradient-to-r from-transparent via-yellow-500/50 to-transparent max-w-[100px]" />
+                    <h2 className="text-2xl font-bold text-foreground">
+                      Top Models
+                    </h2>
+                    <div className="h-px flex-1 bg-gradient-to-r from-transparent via-yellow-500/50 to-transparent max-w-[100px]" />
+                  </div>
+                  <p className="text-sm text-muted-foreground">
+                    Industry-leading AI models from premier providers
+                  </p>
+                </div>
+                <div className="hidden sm:flex items-center gap-2 text-sm text-muted-foreground">
+                  <div className="flex items-center gap-1.5">
+                    <div className="w-2 h-2 rounded-full bg-yellow-500 animate-pulse" />
+                    <span>Live Performance</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
+              {topModels.map((model) => {
+                const overallScore = ((model.current_performance || 0) + (model.current_intelligence || 0)) / 2 || 0;
+                return (
+                  <div
+                    key={model.id}
+                    className="relative group h-[280px]"
+                  >
+                    {/* Card container with fixed height */}
+                    <div className="relative h-full bg-card rounded-xl border-2 border-yellow-500/20 hover:border-yellow-500/40 transition-all duration-300 overflow-hidden group-hover:shadow-lg group-hover:shadow-yellow-500/10">
+                      {/* Accent stripe at top */}
+                      <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-yellow-500 via-orange-500 to-yellow-500" />
+                      
+                      {/* Subtle pattern overlay */}
+                      <div className="absolute inset-0 opacity-5">
+                        <div className="absolute inset-0" style={{
+                          backgroundImage: `repeating-linear-gradient(45deg, transparent, transparent 10px, rgba(251, 191, 36, 0.1) 10px, rgba(251, 191, 36, 0.1) 20px)`
+                        }} />
+                      </div>
+                      
+                      {/* TOP PROVIDER badge */}
+                      <div className="absolute top-3 right-3 z-20">
+                        <div className="bg-gradient-to-r from-yellow-500 to-orange-500 text-white text-xs font-bold px-3 py-1.5 rounded-full shadow-lg">
+                          TOP PROVIDER
+                        </div>
+                      </div>
+                      
+                      {/* Provider - absolute positioned at top */}
+                      <div className="absolute top-6 left-6 right-6">
+                        <p className="text-sm text-muted-foreground">
+                          {model.provider}
+                        </p>
+                      </div>
+                      
+                      {/* Model name - absolute positioned below provider */}
+                      <div className="absolute top-11 left-6 right-6 pr-12">
+                        <h3 className="text-lg font-semibold line-clamp-2 group-hover:text-primary transition-colors">
+                          {model.name.includes(':') ? model.name.split(':').slice(1).join(':').trim() : model.name}
+                        </h3>
+                      </div>
+                      
+                      {/* Mood emoji - absolute positioned top right */}
+                      <div className="absolute top-12 right-6 text-3xl">
+                        {getMoodEmoji(overallScore)}
+                      </div>
+                      
+                      {/* Performance indicator - absolute positioned in middle */}
+                      <div className="absolute top-32 left-6 right-6">
+                        {overallScore > 3.5 && (
+                          <div className="flex items-center gap-1 text-green-600 text-sm">
+                            <TrendingUp className="w-4 h-4" />
+                            <span>Performing well</span>
+                          </div>
+                        )}
+                        {overallScore < 2.5 && overallScore > 0 && (
+                          <div className="flex items-center gap-1 text-red-600 text-sm">
+                            <TrendingDown className="w-4 h-4" />
+                            <span>Having issues</span>
+                          </div>
+                        )}
+                      </div>
+                      
+                      {/* Votes - absolute positioned above buttons */}
+                      <div className="absolute bottom-20 left-6 right-6">
+                        <div className="flex items-center gap-1 text-sm text-muted-foreground">
+                          <Users className="w-4 h-4 text-muted-foreground/70" />
+                          <span>{model.votes_today || 0} votes today</span>
+                        </div>
+                      </div>
+                      
+                      {/* Action buttons - absolute positioned at bottom */}
+                      <div className="absolute bottom-6 left-6 right-6 flex gap-2">
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            setSelectedModel(model);
+                          }}
+                          disabled={votedModels.has(model.id)}
+                          className={cn(
+                            "flex-1 py-2 px-4 rounded-lg font-medium transition-all",
+                            votedModels.has(model.id)
+                              ? "bg-secondary text-muted-foreground cursor-not-allowed"
+                              : "bg-primary text-primary-foreground hover:bg-primary/90"
+                          )}
+                        >
+                          {votedModels.has(model.id) ? 'Already voted' : 'Rate'}
+                        </button>
+                        <Link
+                          href={`/stats/${encodeURIComponent(model.id)}`}
+                          onClick={(e) => e.stopPropagation()}
+                          className="px-3 py-2 rounded-lg bg-secondary hover:bg-secondary/80 text-secondary-foreground transition-all flex items-center justify-center"
+                          title="View statistics"
+                        >
+                          <BarChart3 className="w-5 h-5" />
+                        </Link>
+                        <Link
+                          href={`/compare?models=${model.id}`}
+                          onClick={(e) => e.stopPropagation()}
+                          className="px-3 py-2 rounded-lg bg-secondary hover:bg-secondary/80 text-secondary-foreground transition-all flex items-center justify-center"
+                          title="Compare with other models"
+                        >
+                          <GitCompare className="w-5 h-5" />
+                        </Link>
+                      </div>
+                      
+                      {/* Invisible link overlay for clicking anywhere on card */}
+                      <Link
+                        href={`/stats/${encodeURIComponent(model.id)}`}
+                        className="absolute inset-0 z-10"
+                        aria-label={`View stats for ${model.name}`}
+                      />
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </section>
+        )}
+
         {/* Hot Models Section - Eye-catching for Rabbit Hole Entry */}
         {hotModels.length > 0 && (
           <section className="mb-12">
@@ -519,34 +665,6 @@ export default function HomePage() {
           </div>
         ) : (
           <>
-            {/* Flagship Models Section - Special Design */}
-            {flagshipModels.length > 0 && (
-              <section className="mb-12">
-                <h2 className="text-2xl font-bold mb-6 text-foreground flex items-center gap-2">
-                  <Award className="w-7 h-7 text-yellow-500" />
-                  Flagship Models
-                </h2>
-                <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-                  {flagshipModels.map((model) => (
-                    <div
-                      key={model.id}
-                      className="relative bg-gradient-to-br from-primary/10 to-primary/5 rounded-xl border-2 border-primary/20 hover:border-primary/40 transition-all"
-                    >
-                      <div className="absolute -top-2 -right-2">
-                        <span className="bg-yellow-500 text-black text-xs font-bold px-2 py-1 rounded-full">
-                          FLAGSHIP
-                        </span>
-                      </div>
-                      <ModelCard
-                        model={model}
-                        onVoteClick={() => setSelectedModel(model)}
-                        hasVoted={votedModels.has(model.id)}
-                      />
-                    </div>
-                  ))}
-                </div>
-              </section>
-            )}
 
             {/* Trending Today Section */}
             {trendingModels.length > 0 && (
