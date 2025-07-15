@@ -2,18 +2,74 @@
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { Brain, TrendingUp, Users, Award, ArrowUpRight, ArrowDownRight, Calendar } from 'lucide-react';
+import { Brain, TrendingUp, Users, Award, ArrowUpRight, ArrowDownRight } from 'lucide-react';
 import { getMoodEmoji, getMoodColor, cn } from '@/lib/utils';
 import { Line, LineChart, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, BarChart, Bar } from 'recharts';
 
+interface ModelStat {
+  id: string;
+  name: string;
+  provider: string;
+  avg_performance: number;
+  avg_intelligence: number;
+  total_votes: number;
+  trend: number;
+}
+
+interface StatsData {
+  aggregateStats: {
+    total_models: number;
+    models_with_votes: number;
+    total_votes: number;
+    avg_performance: number;
+    avg_intelligence: number;
+  };
+  summary: {
+    totalVotes: number;
+    activeModels: number;
+    topProvider: string;
+    avgRating: number;
+  };
+  trends: Array<{
+    date: string;
+    votes: number;
+    avg_rating: number;
+  }>;
+  topModels: {
+    byPerformance: ModelStat[];
+    byIntelligence: ModelStat[];
+    byVotes: ModelStat[];
+    trending: Array<ModelStat & { votes_today: number; vote_growth?: number }>;
+  };
+  providerStats: Array<{
+    provider: string;
+    model_count: number;
+    total_votes: number;
+    avg_rating: number;
+  }>;
+  byProvider: Array<{
+    provider: string;
+    modelCount: number;
+    modelsWithVotes: number;
+    totalVotes: number;
+    avgPerformance: number;
+  }>;
+  byCategory: Array<{
+    category: string;
+    modelCount: number;
+    totalVotes: number;
+    avgPerformance: number;
+  }>;
+}
+
 export default function StatsPage() {
-  const [data, setData] = useState<any>(null);
+  const [data, setData] = useState<StatsData | null>(null);
   const [loading, setLoading] = useState(true);
   const [period, setPeriod] = useState(30);
 
   useEffect(() => {
     fetchStats();
-  }, [period]);
+  }, [period]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const fetchStats = async () => {
     try {
@@ -187,7 +243,7 @@ export default function StatsPage() {
           <div className="bg-white rounded-xl border border-gray-200 p-6">
             <h2 className="text-lg font-semibold mb-4">Top Performing Models</h2>
             <div className="space-y-3">
-              {data.topModels.byPerformance.slice(0, 5).map((model: any, index: number) => (
+              {data.topModels.byPerformance.slice(0, 5).map((model, index) => (
                 <Link
                   key={model.id}
                   href={`/stats/${encodeURIComponent(model.id)}`}
@@ -217,7 +273,7 @@ export default function StatsPage() {
           <div className="bg-white rounded-xl border border-gray-200 p-6">
             <h2 className="text-lg font-semibold mb-4">Most Voted Models</h2>
             <div className="space-y-3">
-              {data.topModels.byVotes.slice(0, 5).map((model: any, index: number) => (
+              {data.topModels.byVotes.slice(0, 5).map((model, index) => (
                 <Link
                   key={model.id}
                   href={`/stats/${encodeURIComponent(model.id)}`}
@@ -250,7 +306,7 @@ export default function StatsPage() {
               Trending Today
             </h2>
             <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-              {data.topModels.trending.map((model: any) => (
+              {data.topModels.trending.map((model) => (
                 <Link
                   key={model.id}
                   href={`/stats/${encodeURIComponent(model.id)}`}
@@ -264,16 +320,16 @@ export default function StatsPage() {
                       <span className="text-sm">{model.votes_today} today</span>
                     </div>
                     <div className="flex items-center gap-1">
-                      {model.vote_growth > 0 ? (
+                      {(model.vote_growth || 0) > 0 ? (
                         <ArrowUpRight className="w-4 h-4 text-green-600" />
                       ) : (
                         <ArrowDownRight className="w-4 h-4 text-red-600" />
                       )}
                       <span className={cn(
                         "text-sm font-medium",
-                        model.vote_growth > 0 ? "text-green-600" : "text-red-600"
+                        (model.vote_growth || 0) > 0 ? "text-green-600" : "text-red-600"
                       )}>
-                        {model.vote_growth > 0 ? '+' : ''}{model.vote_growth}
+                        {(model.vote_growth || 0) > 0 ? '+' : ''}{model.vote_growth || 0}
                       </span>
                     </div>
                   </div>
@@ -300,7 +356,7 @@ export default function StatsPage() {
             </ResponsiveContainer>
           </div>
           <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3 mt-6">
-            {data.byProvider.slice(0, 6).map((provider: any) => (
+            {data.byProvider.slice(0, 6).map((provider) => (
               <div key={provider.provider} className="p-4 rounded-lg border border-gray-200">
                 <h3 className="font-medium mb-2">{provider.provider}</h3>
                 <div className="space-y-1 text-sm">
@@ -325,7 +381,7 @@ export default function StatsPage() {
         <div className="bg-white rounded-xl border border-gray-200 p-6">
           <h2 className="text-lg font-semibold mb-4">Statistics by Category</h2>
           <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-            {data.byCategory.map((category: any) => (
+            {data.byCategory.map((category) => (
               <div key={category.category} className="p-4 rounded-lg border border-gray-200">
                 <h3 className="font-medium mb-2 capitalize">{category.category || 'Uncategorized'}</h3>
                 <div className="space-y-1 text-sm">

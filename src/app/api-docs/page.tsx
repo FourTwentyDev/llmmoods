@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
-import { Brain, ArrowLeft, Copy, Check, ChevronRight, Code2, Zap, BookOpen } from 'lucide-react';
+import { Brain, ArrowLeft, Copy, Check, Code2, Zap, BookOpen } from 'lucide-react';
 
 export default function ApiDocsPage() {
   const [copiedEndpoint, setCopiedEndpoint] = useState<string | null>(null);
@@ -199,7 +199,7 @@ export default function ApiDocsPage() {
                   <tr>
                     <td className="py-2"><code className="text-sm bg-gray-100 px-1 rounded">modelId</code></td>
                     <td className="py-2 text-gray-600">string</td>
-                    <td className="py-2 text-gray-600">The model ID (e.g., "gpt-4", "claude-3-opus")</td>
+                    <td className="py-2 text-gray-600">The model ID (e.g., &quot;gpt-4&quot;, &quot;claude-3-opus&quot;)</td>
                   </tr>
                 </tbody>
               </table>

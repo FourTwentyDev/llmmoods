@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { checkRateLimit } from '@/lib/rate-limit';
 import { generateFingerprint } from '@/lib/fingerprint';
-import { query, queryOne } from '@/lib/db';
+import { query } from '@/lib/db';
 import { z } from 'zod';
 
 // Validation schema für eingehende Kommentare
@@ -29,7 +29,7 @@ export async function POST(req: NextRequest) {
     
     if (!validation.success) {
       return NextResponse.json(
-        { error: 'Invalid input', details: validation.error.errors },
+        { error: 'Invalid input', details: validation.error.issues },
         { status: 400 }
       );
     }
@@ -51,7 +51,7 @@ export async function POST(req: NextRequest) {
 
     // Speichere Kommentar mit automatischer Approval (vorerst)
     // Nutze Prepared Statements gegen SQL Injection
-    const result = await query(
+    await query(
       `INSERT INTO comments (model_id, fingerprint_hash, comment_text, is_approved) 
        VALUES (?, ?, ?, ?)`,
       [model_id, fingerprint, comment_text, true] // is_approved = true für jetzt
@@ -61,7 +61,7 @@ export async function POST(req: NextRequest) {
       { 
         success: true,
         message: 'Comment posted successfully',
-        id: (result as any).insertId || 'new'
+        id: 'new' // MySQL doesn't return insertId for execute
       },
       { status: 201 }
     );

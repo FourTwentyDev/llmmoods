@@ -1,15 +1,19 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getConnection } from '@/lib/db';
+import type { Model } from '@/types/database';
+import { RowDataPacket } from 'mysql2';
+
+interface ModelRow extends Model, RowDataPacket {}
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: { modelId: string } }
+  { params }: { params: Promise<{ modelId: string }> }
 ) {
   try {
     const connection = await getConnection();
-    const { modelId } = params;
+    const { modelId } = await params;
     
-    const [models]: any = await connection.execute(
+    const [models] = await connection.execute<ModelRow[]>(
       `SELECT 
         id,
         name,

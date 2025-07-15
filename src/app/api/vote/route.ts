@@ -88,7 +88,7 @@ export async function POST(req: NextRequest) {
       remaining,
       message: 'Vote recorded successfully!' 
     });
-  } catch (error) {
+  } catch {
     // Error recording vote - consider logging to monitoring service
     return NextResponse.json(
       { error: 'Failed to record vote' },

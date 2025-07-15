@@ -1,19 +1,19 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { Model } from '@/types';
-import { Brain, ArrowLeft, Plus, X, TrendingUp, Zap, Award, Shield, Share2, Twitter, Link2 } from 'lucide-react';
-import { getMoodEmoji, getMoodColor, cn } from '@/lib/utils';
+import { Brain, ArrowLeft, Plus, X, TrendingUp, Zap, Shield, Share2, Twitter, Link2 } from 'lucide-react';
+import { getMoodEmoji, cn } from '@/lib/utils';
 import { Line, LineChart, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend } from 'recharts';
 
-export default function ComparePage() {
+function CompareContent() {
   const searchParams = useSearchParams();
   const [models, setModels] = useState<Model[]>([]);
   const [selectedModels, setSelectedModels] = useState<Model[]>([]);
-  const [compareData, setCompareData] = useState<any[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [compareData, setCompareData] = useState<Array<Record<string, number | string>>>([]);
+  const [, setLoading] = useState(true);
   const [showModelPicker, setShowModelPicker] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [showShareMenu, setShowShareMenu] = useState(false);
@@ -33,7 +33,7 @@ export default function ComparePage() {
     if (selectedModels.length > 0) {
       fetchCompareData();
     }
-  }, [selectedModels]);
+  }, [selectedModels]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const fetchModels = async () => {
     try {
@@ -75,7 +75,14 @@ export default function ComparePage() {
       // Merge data by date
       const dateMap = new Map();
       results.forEach(result => {
-        result.data.forEach((stat: any) => {
+        result.data.forEach((stat: {
+          stat_date: string;
+          avg_performance: string;
+          avg_intelligence: string;
+          avg_speed: string;
+          avg_reliability: string;
+          total_votes: number;
+        }) => {
           const date = stat.stat_date;
           if (!dateMap.has(date)) {
             dateMap.set(date, { date });
@@ -219,7 +226,7 @@ export default function ComparePage() {
                 <h3 className="font-medium line-clamp-1">{model.name}</h3>
                 <p className="text-sm text-gray-500">{model.provider}</p>
                 <div className="mt-2 text-2xl">
-                  {getMoodEmoji((parseFloat(model.current_performance) + parseFloat(model.current_intelligence)) / 2 || 0)}
+                  {getMoodEmoji(((model.current_performance || 0) + (model.current_intelligence || 0)) / 2)}
                 </div>
               </div>
             ))}
@@ -308,8 +315,8 @@ export default function ComparePage() {
                   </tr>
                 </thead>
                 <tbody>
-                  {selectedModels.map((model, index) => {
-                    const overall = (parseFloat(model.current_performance) + parseFloat(model.current_intelligence)) / 2 || 0;
+                  {selectedModels.map((model) => {
+                    const overall = ((model.current_performance || 0) + (model.current_intelligence || 0)) / 2;
                     return (
                       <tr key={model.id} className="border-t">
                         <td className="p-3">
@@ -320,12 +327,12 @@ export default function ComparePage() {
                         </td>
                         <td className="text-center p-3">
                           <span className="text-lg font-semibold">
-                            {model.current_performance != null ? parseFloat(model.current_performance).toFixed(2) : '0.00'}
+                            {model.current_performance != null ? model.current_performance.toFixed(2) : '0.00'}
                           </span>
                         </td>
                         <td className="text-center p-3">
                           <span className="text-lg font-semibold">
-                            {model.current_intelligence != null ? parseFloat(model.current_intelligence).toFixed(2) : '0.00'}
+                            {model.current_intelligence != null ? model.current_intelligence.toFixed(2) : '0.00'}
                           </span>
                         </td>
                         <td className="text-center p-3">
@@ -397,7 +404,7 @@ export default function ComparePage() {
                           <p className="text-sm text-gray-500">{model.provider}</p>
                         </div>
                         <span className="text-xl">
-                          {getMoodEmoji((parseFloat(model.current_performance) + parseFloat(model.current_intelligence)) / 2 || 0)}
+                          {getMoodEmoji(((model.current_performance || 0) + (model.current_intelligence || 0)) / 2)}
                         </span>
                       </div>
                     </button>
@@ -424,5 +431,13 @@ export default function ComparePage() {
         </div>
       </div>
     </main>
+  );
+}
+
+export default function ComparePage() {
+  return (
+    <Suspense fallback={<div className="min-h-screen bg-gray-50 flex items-center justify-center"><div className="text-gray-500">Loading...</div></div>}>
+      <CompareContent />
+    </Suspense>
   );
 }

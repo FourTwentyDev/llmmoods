@@ -1,5 +1,17 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getConnection } from '@/lib/db';
+import { RowDataPacket } from 'mysql2';
+
+interface RankingRow extends RowDataPacket {
+  id: string;
+  name: string;
+  provider: string;
+  category: string;
+  avg_performance: number;
+  avg_intelligence: number;
+  vote_count: number;
+  overall_score: number;
+}
 
 export async function GET(request: NextRequest) {
   try {
@@ -43,7 +55,7 @@ export async function GET(request: NextRequest) {
     `;
     
     const params = category ? [category] : [];
-    const [rankings] = await connection.execute(query, params);
+    const [rankings] = await connection.execute<RankingRow[]>(query, params);
     
     return NextResponse.json({
       period,

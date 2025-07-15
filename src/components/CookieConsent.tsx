@@ -2,7 +2,6 @@
 
 import { useState, useEffect } from 'react';
 import { X, Cookie, Shield, BarChart3 } from 'lucide-react';
-import { cn } from '@/lib/utils';
 
 export function CookieConsent() {
   const [showBanner, setShowBanner] = useState(false);
@@ -101,7 +100,7 @@ export function CookieConsent() {
                 <h3 className="font-semibold text-gray-900 mb-1">We value your privacy</h3>
                 <p className="text-sm text-gray-600">
                   We use cookies to enhance your browsing experience, analyze site traffic, and personalize content. 
-                  By clicking "Accept All", you consent to our use of cookies.{' '}
+                  By clicking &quot;Accept All&quot;, you consent to our use of cookies.{' '}
                   <button
                     onClick={() => setShowDetails(true)}
                     className="text-blue-600 hover:text-blue-700 underline"

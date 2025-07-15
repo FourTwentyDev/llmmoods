@@ -1,6 +1,6 @@
 interface StructuredDataProps {
   type: 'WebSite' | 'SoftwareApplication' | 'FAQPage' | 'BreadcrumbList';
-  data: any;
+  data: Record<string, unknown>;
 }
 
 export function StructuredData({ type, data }: StructuredDataProps) {
@@ -75,7 +75,13 @@ export const faqStructuredData = {
   ],
 };
 
-export function generateModelStructuredData(model: any) {
+export function generateModelStructuredData(model: {
+  name: string;
+  provider: string;
+  votes_today: number;
+  current_performance: number;
+  current_intelligence: number;
+}) {
   return {
     '@context': 'https://schema.org',
     '@type': 'SoftwareApplication',

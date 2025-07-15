@@ -16,7 +16,7 @@ export async function syncModelsFromOpenRouter(): Promise<void> {
     
     // Filter for popular/relevant models
     const popularProviders = ['openai', 'anthropic', 'google', 'meta', 'mistralai', 'deepseek', 'x-ai'];
-    const relevantModels = data.data.filter((model: any) => {
+    const relevantModels = data.data.filter((model: { id: string; name: string }) => {
       const provider = model.id.split('/')[0].toLowerCase();
       return popularProviders.includes(provider) || 
              model.name.toLowerCase().includes('gpt') ||

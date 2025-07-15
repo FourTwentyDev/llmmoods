@@ -28,7 +28,7 @@ export default function ModelStatsPage() {
 
   useEffect(() => {
     fetchModelAndStats();
-  }, [modelId, days]);
+  }, [modelId, days]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const fetchModelAndStats = async () => {
     try {
@@ -43,7 +43,14 @@ export default function ModelStatsPage() {
       const currentModel = modelsData.models.find((m: Model) => m.id === modelId);
       setModel(currentModel);
 
-      const formattedStats = statsData.historical.map((stat: any) => ({
+      const formattedStats = statsData.historical.map((stat: {
+        stat_date: string;
+        avg_performance: string;
+        avg_speed: string;
+        avg_intelligence: string;
+        avg_reliability: string;
+        total_votes: number;
+      }) => ({
         date: stat.stat_date,
         performance: parseFloat(stat.avg_performance) || 0,
         speed: parseFloat(stat.avg_speed) || 0,
@@ -123,7 +130,7 @@ export default function ModelStatsPage() {
             </div>
             <div className="text-right">
               <div className="text-4xl mb-1">
-                {getMoodEmoji((model.current_performance + model.current_intelligence) / 2 || 0)}
+                {getMoodEmoji(((model.current_performance || 0) + (model.current_intelligence || 0)) / 2)}
               </div>
               <p className="text-sm text-gray-600">Current Mood</p>
             </div>
@@ -185,9 +192,11 @@ export default function ModelStatsPage() {
             ].map(({ name, icon: Icon, color }) => {
               const metric = name.toLowerCase();
               const latestStat = stats[stats.length - 1];
-              const value = latestStat ? latestStat[metric as keyof StatsData] : 0;
+              const rawValue = latestStat ? latestStat[metric as keyof StatsData] : 0;
+              const value = typeof rawValue === 'number' ? rawValue : Number(rawValue);
               const previousStat = stats[stats.length - 2];
-              const previousValue = previousStat ? previousStat[metric as keyof StatsData] : 0;
+              const rawPreviousValue = previousStat ? previousStat[metric as keyof StatsData] : 0;
+              const previousValue = typeof rawPreviousValue === 'number' ? rawPreviousValue : Number(rawPreviousValue);
               const change = value - previousValue;
               const percentChange = previousValue > 0 ? ((change / previousValue) * 100) : 0;
 

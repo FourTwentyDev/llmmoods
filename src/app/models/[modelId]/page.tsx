@@ -1,18 +1,16 @@
 'use client';
 
 import { useEffect } from 'react';
-import { useRouter } from 'next/navigation';
+import { useRouter, useParams } from 'next/navigation';
 
-interface Props {
-  params: { modelId: string };
-}
-
-export default function ModelPage({ params }: Props) {
+export default function ModelPage() {
   const router = useRouter();
+  const params = useParams();
+  const modelId = params.modelId as string;
   
   useEffect(() => {
-    router.replace(`/stats/${params.modelId}`);
-  }, [params.modelId, router]);
+    router.replace(`/stats/${modelId}`);
+  }, [modelId, router]);
   
   return null;
 }

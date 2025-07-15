@@ -4,10 +4,16 @@ import { useState, useEffect } from 'react';
 import { ModelCard } from '@/components/ModelCard';
 import { VoteModal } from '@/components/VoteModal';
 import { Model, Vote } from '@/types';
-import { Brain, BarChart3, Github, TrendingUp, Award, Clock, Zap, ChevronRight, Users, Sparkles, Flame, GitCompare, Code2, Search, ChevronLeft, Filter } from 'lucide-react';
+
+interface ModelWithStats extends Model {
+  avg_performance?: number;
+  avg_intelligence?: number;
+  total_votes?: number;
+}
+import { BarChart3, Github, TrendingUp, Award, Clock, Zap, ChevronRight, Users, Sparkles, Flame, GitCompare, Code2, Search, ChevronLeft } from 'lucide-react';
 import Link from 'next/link';
 import Image from 'next/image';
-import { getMoodEmoji, getMoodColor, cn } from '@/lib/utils';
+import { getMoodEmoji, cn } from '@/lib/utils';
 import { StructuredData, websiteStructuredData, faqStructuredData } from '@/components/StructuredData';
 import { trackVote, trackSearch, trackFilter } from '@/lib/analytics';
 
@@ -17,7 +23,7 @@ export default function HomePage() {
   const [votedModels, setVotedModels] = useState<Set<string>>(new Set());
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState<'all' | 'llm' | 'image' | 'code'>('all');
-  const [topPerformers, setTopPerformers] = useState<{ today: Model[], week: Model[], month: Model[] }>({ today: [], week: [], month: [] });
+  const [topPerformers, setTopPerformers] = useState<{ today: ModelWithStats[], week: ModelWithStats[], month: ModelWithStats[] }>({ today: [], week: [], month: [] });
   const [hotModels, setHotModels] = useState<Model[]>([]);
   const [searchQuery, setSearchQuery] = useState('');
   const [debouncedSearch, setDebouncedSearch] = useState('');
@@ -65,11 +71,11 @@ export default function HomePage() {
       
       // Extract unique vendors
       const vendors = [...new Set(data.models.map((m: Model) => m.provider))].sort();
-      setUniqueVendors(vendors);
+      setUniqueVendors(vendors as string[]);
       
       // Calculate hot models (high vote velocity)
       const hot = data.models
-        .filter((m: Model) => m.votes_today > 5)
+        .filter((m: Model) => (m.votes_today || 0) > 5)
         .sort((a: Model, b: Model) => (b.votes_today || 0) - (a.votes_today || 0))
         .slice(0, 4);
       setHotModels(hot);
@@ -124,7 +130,7 @@ export default function HomePage() {
         fetchModels();
         
         // Track vote with Google Analytics
-        trackVote(vote.modelId, (vote.performance + vote.intelligence) / 2);
+        trackVote(vote.modelId, ((vote.ratings.performance || 0) + (vote.ratings.intelligence || 0)) / 2);
       } else {
         const error = await res.json();
         alert(error.error || 'Failed to submit vote');
@@ -178,7 +184,7 @@ export default function HomePage() {
               />
               <div>
                 <h1 className="text-2xl font-bold text-gray-900">LLM Mood Tracker</h1>
-                <p className="text-sm text-gray-600">How's your AI feeling today?</p>
+                <p className="text-sm text-gray-600">How&apos;s your AI feeling today?</p>
               </div>
             </div>
             <div className="flex items-center gap-4">
@@ -226,7 +232,7 @@ export default function HomePage() {
                   </div>
                   <div>
                     <h2 className="text-2xl font-bold">Hot Right Now</h2>
-                    <p className="text-orange-100">Models everyone's talking about today</p>
+                    <p className="text-orange-100">Models everyone&apos;s talking about today</p>
                   </div>
                 </div>
                 <Link 
@@ -238,7 +244,7 @@ export default function HomePage() {
                 </Link>
               </div>
               <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-                {hotModels.map((model, index) => (
+                {hotModels.map((model) => (
                   <Link
                     key={model.id}
                     href={`/stats/${encodeURIComponent(model.id)}`}
@@ -250,7 +256,7 @@ export default function HomePage() {
                         <p className="text-sm text-orange-100">{model.provider}</p>
                       </div>
                       <span className="text-2xl">
-                        {getMoodEmoji((model.current_performance + model.current_intelligence) / 2 || 0)}
+                        {getMoodEmoji(((model.current_performance || 0) + (model.current_intelligence || 0)) / 2)}
                       </span>
                     </div>
                     <div className="flex items-center gap-2 text-sm">
@@ -309,7 +315,7 @@ export default function HomePage() {
                 href="/stats?period=1" 
                 className="mt-4 flex items-center justify-center gap-2 text-sm text-blue-600 hover:text-blue-700"
               >
-                <span>View all today's rankings</span>
+                <span>View all today&apos;s rankings</span>
                 <ChevronRight className="w-4 h-4" />
               </Link>
             </div>
@@ -465,7 +471,7 @@ export default function HomePage() {
             {/* Results Count */}
             {debouncedSearch && (
               <div className="mt-4 text-sm text-gray-600">
-                Found {filteredModels.length} models matching "{debouncedSearch}"
+                Found {filteredModels.length} models matching &quot;{debouncedSearch}&quot;
               </div>
             )}
           </div>

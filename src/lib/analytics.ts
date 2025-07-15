@@ -30,7 +30,7 @@ export const pageview = (url: string) => {
 };
 
 // Log specific events
-export const event = (action: string, parameters?: Record<string, any>) => {
+export const event = (action: string, parameters?: Record<string, unknown>) => {
   if (!isAnalyticsEnabled() || !window.gtag) return;
   
   window.gtag('event', action, parameters);

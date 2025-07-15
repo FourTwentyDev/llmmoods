@@ -2,6 +2,13 @@ import { NextRequest, NextResponse } from 'next/server';
 import { query } from '@/lib/db';
 import { z } from 'zod';
 
+interface Comment {
+  id: number;
+  comment_text: string;
+  created_at: Date;
+  author_hash: string;
+}
+
 // Validation für modelId parameter
 const modelIdSchema = z.string().min(1).max(100);
 
@@ -44,7 +51,7 @@ export async function GET(
     );
 
     // Formatiere Timestamps
-    const formattedComments = (comments as any[]).map(comment => ({
+    const formattedComments = (comments as Comment[]).map(comment => ({
       id: comment.id,
       text: comment.comment_text,
       authorHash: comment.author_hash, // Kurzer Hash als "Anonym-ID"

@@ -26,7 +26,7 @@ export default function CommentSection({ modelId }: CommentSectionProps) {
   // Lade Kommentare
   useEffect(() => {
     fetchComments();
-  }, [modelId]);
+  }, [modelId]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const fetchComments = async () => {
     setIsLoading(true);
@@ -81,8 +81,8 @@ export default function CommentSection({ modelId }: CommentSectionProps) {
       setNewComment('');
       await fetchComments();
       
-    } catch (err: any) {
-      setError(err.message || 'An error occurred');
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'An error occurred');
     } finally {
       setIsSubmitting(false);
     }

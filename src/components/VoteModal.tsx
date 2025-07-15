@@ -97,7 +97,7 @@ export function VoteModal({ model, open, onOpenChange, onVoteSubmit }: VoteModal
         <Dialog.Content className="fixed left-[50%] top-[50%] -translate-x-[50%] -translate-y-[50%] w-[90vw] max-w-md bg-white rounded-2xl shadow-2xl z-50 animate-in fade-in zoom-in-95 duration-200">
           <div className="p-6">
             <Dialog.Title className="text-xl font-semibold mb-1">
-              How's {model.name} today?
+              How&apos;s {model.name} today?
             </Dialog.Title>
             <Dialog.Description className="text-gray-500 text-sm mb-6">
               Rate your experience with this model
@@ -125,7 +125,7 @@ export function VoteModal({ model, open, onOpenChange, onVoteSubmit }: VoteModal
                   {currentCategory.options.map((option) => (
                     <button
                       key={option.value}
-                      onClick={() => handleRatingSelect(currentCategory.key as keyof Vote['ratings'], option.value as any)}
+                      onClick={() => handleRatingSelect(currentCategory.key as keyof Vote['ratings'], option.value)}
                       className={cn(
                         "p-4 rounded-xl border-2 transition-all hover:scale-105 flex flex-col items-center justify-center h-24",
                         ratings[currentCategory.key as keyof Vote['ratings']] === option.value

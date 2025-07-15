@@ -27,7 +27,7 @@ interface StatsChartProps {
   modelName: string;
 }
 
-export function StatsChart({ data, modelName }: StatsChartProps) {
+export function StatsChart({ data }: StatsChartProps) {
   const chartData = useMemo(() => {
     return data.map(item => ({
       ...item,
@@ -35,12 +35,16 @@ export function StatsChart({ data, modelName }: StatsChartProps) {
     }));
   }, [data]);
 
-  const CustomTooltip = ({ active, payload, label }: any) => {
+  const CustomTooltip = ({ active, payload, label }: {
+    active?: boolean;
+    payload?: Array<{ color: string; name: string; value: number }>;
+    label?: string;
+  }) => {
     if (active && payload && payload.length) {
       return (
         <div className="bg-white p-4 border border-gray-200 rounded-lg shadow-lg">
           <p className="font-medium text-gray-900 mb-2">{label}</p>
-          {payload.map((entry: any, index: number) => (
+          {payload.map((entry, index: number) => (
             <p key={index} className="text-sm" style={{ color: entry.color }}>
               <span className="font-medium">{entry.name}:</span> {entry.value.toFixed(2)}
             </p>

@@ -19,20 +19,21 @@ function getPool() {
   return pool;
 }
 
-export async function query<T = any>(
+export async function query<T = unknown>(
   sql: string,
-  params?: any[]
+  params?: unknown[]
 ): Promise<T[]> {
   const [rows] = await getPool().execute(sql, params);
   return rows as T[];
 }
 
-export async function queryOne<T = any>(
+export async function queryOne<T = unknown>(
   sql: string,
-  params?: any[]
+  params?: unknown[]
 ): Promise<T | null> {
   const rows = await query<T>(sql, params);
   return rows[0] || null;
 }
 
 export { getPool as pool };
+export { getPool as getConnection };

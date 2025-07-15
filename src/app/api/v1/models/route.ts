@@ -1,6 +1,13 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getConnection } from '@/lib/db';
 import { headers } from 'next/headers';
+import type { Model } from '@/types/database';
+import { RowDataPacket } from 'mysql2';
+
+interface ModelRow extends Model, RowDataPacket {}
+interface CountRow extends RowDataPacket {
+  total: number;
+}
 
 export async function GET(request: NextRequest) {
   const headersList = await headers();
@@ -31,7 +38,7 @@ export async function GET(request: NextRequest) {
       WHERE 1=1
     `;
     
-    const params: any[] = [];
+    const params: unknown[] = [];
     
     if (category) {
       query += ' AND category = ?';
@@ -47,7 +54,7 @@ export async function GET(request: NextRequest) {
     query += ' LIMIT ? OFFSET ?';
     params.push(limit, offset);
     
-    const [models] = await connection.execute(query, params);
+    const [models] = await connection.execute<ModelRow[]>(query, params);
     
     const countQuery = `
       SELECT COUNT(*) as total FROM models
@@ -56,7 +63,7 @@ export async function GET(request: NextRequest) {
       ${provider ? ' AND provider = ?' : ''}
     `;
     const countParams = params.slice(0, -2);
-    const [countResult]: any = await connection.execute(countQuery, countParams);
+    const [countResult] = await connection.execute<CountRow[]>(countQuery, countParams);
     const total = countResult[0].total;
     
     return NextResponse.json({

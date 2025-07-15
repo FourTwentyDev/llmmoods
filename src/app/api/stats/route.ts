@@ -2,6 +2,73 @@ import { NextResponse } from 'next/server';
 import { query } from '@/lib/db';
 import { RowDataPacket } from 'mysql2';
 
+interface StatsRow extends RowDataPacket {
+  id: string;
+  name: string;
+  provider: string;
+  category: string;
+  total_votes: string;
+  avg_performance: string;
+  avg_intelligence: string;
+  avg_speed: string;
+  avg_reliability: string;
+  days_with_votes?: string;
+}
+
+interface TrendingRow extends RowDataPacket {
+  id: string;
+  name: string;
+  provider: string;
+  category: string;
+  votes_today: string;
+  votes_yesterday: string;
+  vote_growth: string;
+  performance_today: string;
+  intelligence_today: string;
+}
+
+interface ProviderStatsRow extends RowDataPacket {
+  provider: string;
+  model_count: string;
+  models_with_votes: string;
+  total_votes: string;
+  avg_performance: string;
+  avg_intelligence: string;
+  avg_speed: string;
+  avg_reliability: string;
+}
+
+interface CategoryStatsRow extends RowDataPacket {
+  category: string;
+  model_count: string;
+  models_with_votes: string;
+  total_votes: string;
+  avg_performance: string;
+  avg_intelligence: string;
+  avg_speed: string;
+  avg_reliability: string;
+}
+
+interface AggregateStatsRow extends RowDataPacket {
+  total_models: string;
+  models_with_votes: string;
+  total_votes: string;
+  avg_performance: string;
+  avg_intelligence: string;
+  avg_speed: string;
+  avg_reliability: string;
+}
+
+interface TrendsRow extends RowDataPacket {
+  stat_date: string;
+  models_voted: string;
+  total_votes: string;
+  avg_performance: string;
+  avg_intelligence: string;
+  avg_speed: string;
+  avg_reliability: string;
+}
+
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
   const period = parseInt(searchParams.get('period') || '30');
@@ -13,7 +80,7 @@ export async function GET(request: Request) {
     const dateStr = dateLimit.toISOString().split('T')[0];
 
     // 1. Top performing models (by average performance in the period)
-    const topByPerformance = await query<RowDataPacket[]>(`
+    const topByPerformance = await query<StatsRow>(`
       SELECT 
         m.id,
         m.name,
@@ -35,7 +102,7 @@ export async function GET(request: Request) {
     `, [dateStr]);
 
     // 2. Most voted models
-    const topByVotes = await query<RowDataPacket[]>(`
+    const topByVotes = await query<StatsRow>(`
       SELECT 
         m.id,
         m.name,
@@ -56,7 +123,7 @@ export async function GET(request: Request) {
     `, [dateStr]);
 
     // 3. Statistics by provider
-    const byProvider = await query<RowDataPacket[]>(`
+    const byProvider = await query<ProviderStatsRow>(`
       SELECT 
         m.provider,
         COUNT(DISTINCT m.id) as model_count,
@@ -74,7 +141,7 @@ export async function GET(request: Request) {
     `, [dateStr]);
 
     // 4. Statistics by category
-    const byCategory = await query<RowDataPacket[]>(`
+    const byCategory = await query<CategoryStatsRow>(`
       SELECT 
         m.category,
         COUNT(DISTINCT m.id) as model_count,
@@ -92,7 +159,7 @@ export async function GET(request: Request) {
     `, [dateStr]);
 
     // 5. Overall aggregate stats
-    const aggregateStats = await query<RowDataPacket[]>(`
+    const aggregateStats = await query<AggregateStatsRow>(`
       SELECT 
         COUNT(DISTINCT m.id) as total_models,
         COUNT(DISTINCT CASE WHEN ds.total_votes > 0 THEN m.id END) as models_with_votes,
@@ -107,7 +174,7 @@ export async function GET(request: Request) {
     `, [dateStr]);
 
     // 6. Daily trends for the period
-    const trends = await query<RowDataPacket[]>(`
+    const trends = await query<TrendsRow>(`
       SELECT 
         ds.stat_date,
         COUNT(DISTINCT ds.model_id) as models_voted,
@@ -126,7 +193,7 @@ export async function GET(request: Request) {
     const today = new Date().toISOString().split('T')[0];
     const yesterday = new Date(Date.now() - 86400000).toISOString().split('T')[0];
     
-    const trending = await query<RowDataPacket[]>(`
+    const trending = await query<TrendingRow>(`
       SELECT 
         m.id,
         m.name,
