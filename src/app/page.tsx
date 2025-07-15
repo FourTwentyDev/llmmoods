@@ -201,7 +201,7 @@ export default function HomePage() {
                 <span className="hidden sm:inline">API</span>
               </Link>
               <a
-                href="https://github.com/yourusername/llmmood"
+                href="https://github.com/FourTwentyDev/llmmoods"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="flex items-center gap-2 text-gray-600 hover:text-gray-900"

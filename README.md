@@ -32,7 +32,7 @@ Track and compare the daily performance of popular AI language models. Community
 
 1. Clone the repository:
 ```bash
-git clone https://github.com/yourusername/llmmood.git
+git clone https://github.com/FourTwentyDev/llmmoods.git
 cd llmmood
 ```
 
