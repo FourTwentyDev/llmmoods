@@ -2,7 +2,7 @@
 
 import Link from 'next/link'
 import Image from 'next/image'
-import { ArrowLeft, BarChart3, GitCompare, FileJson, Github, Code2 } from 'lucide-react'
+import { ArrowLeft, BarChart3, GitCompare, Github, Code2 } from 'lucide-react'
 import { usePathname } from 'next/navigation'
 import { ThemeToggle } from '@/components/ThemeToggle'
 

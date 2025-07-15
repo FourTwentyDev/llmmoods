@@ -22,7 +22,7 @@ async function getModel(modelId: string) {
     
     const data = await res.json();
     const decodedModelId = decodeURIComponent(modelId);
-    return data.models.find((m: any) => m.id === decodedModelId);
+    return data.models.find((m: { id: string }) => m.id === decodedModelId);
   } catch (error) {
     console.error('Error fetching model:', error);
     return null;

@@ -10,13 +10,11 @@ interface ModelWithStats extends Model {
   avg_intelligence?: number;
   total_votes?: number;
 }
-import { BarChart3, Github, TrendingUp, TrendingDown, Award, Clock, Zap, ChevronRight, Users, Sparkles, Flame, GitCompare, Code2, Search, ChevronLeft } from 'lucide-react';
+import { BarChart3, TrendingUp, TrendingDown, Award, Clock, Zap, ChevronRight, Users, Sparkles, Flame, GitCompare, Search, ChevronLeft } from 'lucide-react';
 import Link from 'next/link';
-import Image from 'next/image';
 import { getMoodEmoji, cn } from '@/lib/utils';
 import { StructuredData, websiteStructuredData, faqStructuredData } from '@/components/StructuredData';
 import { trackVote, trackSearch, trackFilter } from '@/lib/analytics';
-import { ThemeToggle } from '@/components/ThemeToggle';
 import Header from '@/components/Header';
 
 export default function HomePage() {
@@ -48,7 +46,7 @@ export default function HomePage() {
         setVotedModels(new Set(JSON.parse(voted)));
       }
     }
-  }, [viewMode, filter, selectedVendor, debouncedSearch, sortBy]);
+  }, [viewMode, filter, selectedVendor, debouncedSearch, sortBy]); // eslint-disable-line react-hooks/exhaustive-deps
 
   // Debounce search
   useEffect(() => {
@@ -63,7 +61,7 @@ export default function HomePage() {
     }, 300);
 
     return () => clearTimeout(timer);
-  }, [searchQuery]);
+  }, [searchQuery, models.length]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const fetchModels = async () => {
     try {

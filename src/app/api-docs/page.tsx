@@ -1,9 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import Link from 'next/link';
-import { Brain, ArrowLeft, Copy, Check, Code2, Zap, BookOpen } from 'lucide-react';
-import { ThemeToggle } from '@/components/ThemeToggle';
+import { Copy, Check, Code2, Zap, BookOpen } from 'lucide-react';
 import Header from '@/components/Header';
 
 export default function ApiDocsPage() {

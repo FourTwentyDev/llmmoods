@@ -3,7 +3,6 @@
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { Brain, TrendingUp, Users, Award, ArrowUpRight, ArrowDownRight } from 'lucide-react';
-import { ThemeToggle } from '@/components/ThemeToggle';
 import Header from '@/components/Header';
 import { getMoodEmoji, getMoodColor, cn } from '@/lib/utils';
 import { Line, LineChart, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, BarChart, Bar } from 'recharts';

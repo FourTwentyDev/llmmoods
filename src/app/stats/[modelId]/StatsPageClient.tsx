@@ -2,13 +2,11 @@
 
 import { useState, useEffect } from 'react';
 import { useParams } from 'next/navigation';
-import Link from 'next/link';
 import { StatsChart } from '@/components/StatsChart';
 import { Model } from '@/types';
-import { Brain, ArrowLeft, TrendingUp, TrendingDown, Minus, Users, Calendar, Sparkles, Star } from 'lucide-react';
+import { Brain, TrendingUp, TrendingDown, Minus, Users, Calendar, Sparkles, Star } from 'lucide-react';
 import { getMoodEmoji, getMoodColor, cn } from '@/lib/utils';
 import CommentSection from '@/components/CommentSection';
-import { ThemeToggle } from '@/components/ThemeToggle';
 import Header from '@/components/Header';
 import { VoteModal } from '@/components/VoteModal';
 import { Vote } from '@/types';

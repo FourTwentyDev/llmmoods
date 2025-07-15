@@ -2,9 +2,8 @@
 
 import { useState, useEffect, Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
-import Link from 'next/link';
 import { Model } from '@/types';
-import { Brain, ArrowLeft, Plus, X, TrendingUp, Zap, Shield, Share2, Twitter, Link2 } from 'lucide-react';
+import { Brain, Plus, X, TrendingUp, Zap, Shield, Share2, Twitter, Link2 } from 'lucide-react';
 import { ThemeToggle } from '@/components/ThemeToggle';
 import Header from '@/components/Header';
 import { getMoodEmoji, cn } from '@/lib/utils';
