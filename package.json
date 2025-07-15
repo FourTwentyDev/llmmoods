@@ -7,7 +7,7 @@
   "scripts": {
     "dev": "next dev --turbopack",
     "build": "next build",
-    "start": "next start",
+    "start": "next start -p 9595",
     "lint": "next lint",
     "db:init": "mysql -u root -p < src/lib/db/schema.sql",
     "db:seed": "tsx src/scripts/seed.ts"
