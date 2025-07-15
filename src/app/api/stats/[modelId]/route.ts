@@ -12,10 +12,10 @@ interface DailyStat {
 
 export async function GET(
   req: NextRequest,
-  { params }: { params: { modelId: string } }
+  { params }: { params: Promise<{ modelId: string }> }
 ) {
   try {
-    const { modelId } = params;
+    const { modelId } = await params;
     const days = parseInt(req.nextUrl.searchParams.get('days') || '30');
     
     const stats = await query<DailyStat>(

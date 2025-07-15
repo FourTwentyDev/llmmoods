@@ -17,23 +17,24 @@ interface VoteRequest {
 export async function POST(req: NextRequest) {
   try {
     const fingerprintHash = await generateFingerprint(req);
-    const { allowed, remaining } = await checkRateLimit(fingerprintHash, 'vote');
-    
-    if (!allowed) {
-      return NextResponse.json(
-        { error: 'Rate limit exceeded. You can vote once per day.' },
-        { status: 429 }
-      );
-    }
-    
     const body: VoteRequest = await req.json();
     const { modelId, ratings, issueType } = body;
     
-    // Validate inputs
+    // Validate inputs early
     if (!modelId || !ratings || Object.keys(ratings).length === 0) {
       return NextResponse.json(
         { error: 'Invalid vote data' },
         { status: 400 }
+      );
+    }
+    
+    // Check rate limit per model
+    const { allowed, remaining } = await checkRateLimit(fingerprintHash, 'vote', modelId);
+    
+    if (!allowed) {
+      return NextResponse.json(
+        { error: 'Rate limit exceeded. You can vote once per day per model.' },
+        { status: 429 }
       );
     }
     
