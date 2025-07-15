@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { Brain, TrendingUp, Users, Award, ArrowUpRight, ArrowDownRight } from 'lucide-react';
 import { ThemeToggle } from '@/components/ThemeToggle';
+import Header from '@/components/Header';
 import { getMoodEmoji, getMoodColor, cn } from '@/lib/utils';
 import { Line, LineChart, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, BarChart, Bar } from 'recharts';
 
@@ -107,25 +108,10 @@ export default function StatsPage() {
 
   return (
     <main className="min-h-screen bg-background">
-      <header className="bg-card border-b">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <Brain className="w-8 h-8 text-primary" />
-              <h1 className="text-2xl font-bold text-foreground">Overall Statistics</h1>
-            </div>
-            <div className="flex items-center gap-4">
-              <Link 
-                href="/" 
-                className="text-sm text-muted-foreground hover:text-foreground"
-            >
-                Back to voting
-              </Link>
-              <ThemeToggle />
-            </div>
-          </div>
-        </div>
-      </header>
+      <Header 
+        title="Overall Statistics"
+        subtitle="View performance metrics across all models"
+      />
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Period Selector */}

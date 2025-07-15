@@ -17,6 +17,7 @@ import { getMoodEmoji, cn } from '@/lib/utils';
 import { StructuredData, websiteStructuredData, faqStructuredData } from '@/components/StructuredData';
 import { trackVote, trackSearch, trackFilter } from '@/lib/analytics';
 import { ThemeToggle } from '@/components/ThemeToggle';
+import Header from '@/components/Header';
 
 export default function HomePage() {
   const [models, setModels] = useState<Model[]>([]);
@@ -172,55 +173,7 @@ export default function HomePage() {
       <StructuredData type="WebSite" data={websiteStructuredData} />
       <StructuredData type="FAQPage" data={faqStructuredData} />
       <main className="min-h-screen bg-background">
-        <header className="bg-card border-b">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <Image 
-                src="/logo.webp" 
-                alt="LLM Mood Tracker Logo" 
-                width={64} 
-                height={64} 
-                className="rounded-lg"
-              />
-              <div>
-                <h1 className="text-2xl font-bold text-foreground">LLM Mood Tracker</h1>
-                <p className="text-sm text-muted-foreground">How&apos;s your AI feeling today?</p>
-              </div>
-            </div>
-            <div className="flex items-center gap-4">
-              <Link
-                href="/compare"
-                className="flex items-center gap-2 text-muted-foreground hover:text-foreground"
-              >
-                <GitCompare className="w-5 h-5" />
-                <span className="hidden sm:inline">Compare</span>
-              </Link>
-              <Link
-                href="/stats"
-                className="flex items-center gap-2 text-muted-foreground hover:text-foreground"
-              >
-                <BarChart3 className="w-5 h-5" />
-                <span className="hidden sm:inline">Stats</span>
-              </Link>
-              <Link href="/api-docs" className="flex items-center gap-2 text-muted-foreground hover:text-foreground">
-                <Code2 className="w-5 h-5" />
-                <span className="hidden sm:inline">API</span>
-              </Link>
-              <a
-                href="https://github.com/FourTwentyDev/llmmoods"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="flex items-center gap-2 text-muted-foreground hover:text-foreground"
-              >
-                <Github className="w-5 h-5" />
-                <span className="hidden sm:inline">GitHub</span>
-              </a>
-              <ThemeToggle />
-            </div>
-          </div>
-        </div>
-      </header>
+        <Header showBackButton={false} />
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Hot Models Section - Eye-catching for Rabbit Hole Entry */}

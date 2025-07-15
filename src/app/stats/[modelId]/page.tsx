@@ -9,6 +9,7 @@ import { Brain, ArrowLeft, TrendingUp, TrendingDown, Minus, Users, Calendar, Spa
 import { getMoodEmoji, getMoodColor, cn } from '@/lib/utils';
 import CommentSection from '@/components/CommentSection';
 import { ThemeToggle } from '@/components/ThemeToggle';
+import Header from '@/components/Header';
 
 interface StatsData {
   date: string;
@@ -98,49 +99,12 @@ export default function ModelStatsPage() {
 
   return (
     <main className="min-h-screen bg-background">
-      <header className="bg-gradient-to-r from-primary/5 to-primary/10 border-b border">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 relative">
-          <div className="flex items-start justify-between">
-            <div className="flex items-start gap-4">
-              <Link 
-                href="/" 
-                className="p-2 hover:bg-accent rounded-lg transition-colors mt-1"
-                aria-label="Back to home"
-              >
-                <ArrowLeft className="w-5 h-5" />
-              </Link>
-              <div>
-                <div className="flex items-center gap-3 mb-2">
-                  <Brain className="w-8 h-8 text-primary" />
-                  <h1 className="text-3xl font-bold text-foreground">{model.name}</h1>
-                </div>
-                <div className="flex items-center gap-4 text-sm text-muted-foreground">
-                  <span className="px-3 py-1 bg-card rounded-full shadow-sm">
-                    {model.provider}
-                  </span>
-                  <span className="px-3 py-1 bg-card rounded-full shadow-sm capitalize">
-                    {model.category || 'LLM'}
-                  </span>
-                  {model.context_length && (
-                    <span className="px-3 py-1 bg-card rounded-full shadow-sm">
-                      {model.context_length.toLocaleString()} tokens
-                    </span>
-                  )}
-                </div>
-              </div>
-            </div>
-            <div className="text-right">
-              <div className="text-4xl mb-1">
-                {getMoodEmoji(((model.current_performance || 0) + (model.current_intelligence || 0)) / 2)}
-              </div>
-              <p className="text-sm text-muted-foreground">Current Mood</p>
-            </div>
-          </div>
-          <div className="absolute top-4 right-4">
-            <ThemeToggle />
-          </div>
-        </div>
-      </header>
+      <Header 
+        backButtonText="Back to stats"
+        backButtonHref="/stats"
+        title={model.name}
+        subtitle={`${model.provider} • ${model.category || 'LLM'} • ${model.context_length ? model.context_length.toLocaleString() + ' tokens' : ''}`}
+      />
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="mb-8">

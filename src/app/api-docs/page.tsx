@@ -4,6 +4,7 @@ import { useState } from 'react';
 import Link from 'next/link';
 import { Brain, ArrowLeft, Copy, Check, Code2, Zap, BookOpen } from 'lucide-react';
 import { ThemeToggle } from '@/components/ThemeToggle';
+import Header from '@/components/Header';
 
 export default function ApiDocsPage() {
   const [copiedEndpoint, setCopiedEndpoint] = useState<string | null>(null);
@@ -23,23 +24,10 @@ export default function ApiDocsPage() {
 
   return (
     <main className="min-h-screen bg-background">
-      <header className="bg-card border-b">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <Link href="/" className="p-2 hover:bg-accent rounded-lg">
-                <ArrowLeft className="w-5 h-5" />
-              </Link>
-              <Brain className="w-8 h-8 text-primary" />
-              <div>
-                <h1 className="text-2xl font-bold text-foreground">API Documentation</h1>
-                <p className="text-sm text-muted-foreground">Free, public API for AI model rankings</p>
-              </div>
-            </div>
-            <ThemeToggle />
-          </div>
-        </div>
-      </header>
+      <Header 
+        title="API Documentation"
+        subtitle="Free, public API for AI model rankings"
+      />
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Introduction */}

@@ -6,6 +6,7 @@ import Link from 'next/link';
 import { Model } from '@/types';
 import { Brain, ArrowLeft, Plus, X, TrendingUp, Zap, Shield, Share2, Twitter, Link2 } from 'lucide-react';
 import { ThemeToggle } from '@/components/ThemeToggle';
+import Header from '@/components/Header';
 import { getMoodEmoji, cn } from '@/lib/utils';
 import { Line, LineChart, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend } from 'recharts';
 
@@ -161,19 +162,13 @@ function CompareContent() {
 
   return (
     <main className="min-h-screen bg-background">
-      <header className="bg-card border-b">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <Link href="/" className="p-2 hover:bg-accent rounded-lg">
-                <ArrowLeft className="w-5 h-5" />
-              </Link>
-              <Brain className="w-8 h-8 text-primary" />
-              <div>
-                <h1 className="text-2xl font-bold text-foreground">Compare Models</h1>
-                <p className="text-sm text-muted-foreground">Compare up to 4 models side by side</p>
-              </div>
-            </div>
+      <Header 
+        title="Compare Models"
+        subtitle="Compare up to 4 models side by side"
+      />
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+        <div className="flex items-center justify-between">
+          <div></div>
             {selectedModels.length > 0 && (
               <div className="relative">
                 <button
@@ -206,7 +201,6 @@ function CompareContent() {
             <ThemeToggle />
           </div>
         </div>
-      </header>
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Model Selection */}
