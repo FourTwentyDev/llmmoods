@@ -237,6 +237,21 @@ export default function ModelStatsPage() {
             })}
           </div>
         </div>
+
+        {/* Development Credit */}
+        <div className="mt-12 text-center pb-8">
+          <p className="text-xs text-gray-400">
+            Real-time tracking by{' '}
+            <a 
+              href="https://fourtwenty.dev" 
+              target="_blank" 
+              rel="noopener noreferrer"
+              className="text-gray-500 hover:text-gray-700 transition-colors underline-offset-2 hover:underline"
+            >
+              FourTwenty Development
+            </a>
+          </p>
+        </div>
       </div>
     </main>
   );
