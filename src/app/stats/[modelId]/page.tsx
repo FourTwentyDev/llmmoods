@@ -8,6 +8,7 @@ import { Model } from '@/types';
 import { Brain, ArrowLeft, TrendingUp, TrendingDown, Minus, Users, Calendar, Sparkles } from 'lucide-react';
 import { getMoodEmoji, getMoodColor, cn } from '@/lib/utils';
 import CommentSection from '@/components/CommentSection';
+import { ThemeToggle } from '@/components/ThemeToggle';
 
 interface StatsData {
   date: string;
@@ -81,47 +82,47 @@ export default function ModelStatsPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="text-gray-500">Loading statistics...</div>
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <div className="text-muted-foreground">Loading statistics...</div>
       </div>
     );
   }
 
   if (!model) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="text-gray-500">Model not found</div>
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <div className="text-muted-foreground">Model not found</div>
       </div>
     );
   }
 
   return (
-    <main className="min-h-screen bg-gray-50">
-      <header className="bg-gradient-to-r from-blue-50 to-purple-50 border-b border-gray-200">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <main className="min-h-screen bg-background">
+      <header className="bg-gradient-to-r from-primary/5 to-primary/10 border-b border">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 relative">
           <div className="flex items-start justify-between">
             <div className="flex items-start gap-4">
               <Link 
                 href="/" 
-                className="p-2 hover:bg-white/50 rounded-lg transition-colors mt-1"
+                className="p-2 hover:bg-accent rounded-lg transition-colors mt-1"
                 aria-label="Back to home"
               >
                 <ArrowLeft className="w-5 h-5" />
               </Link>
               <div>
                 <div className="flex items-center gap-3 mb-2">
-                  <Brain className="w-8 h-8 text-blue-500" />
-                  <h1 className="text-3xl font-bold text-gray-900">{model.name}</h1>
+                  <Brain className="w-8 h-8 text-primary" />
+                  <h1 className="text-3xl font-bold text-foreground">{model.name}</h1>
                 </div>
-                <div className="flex items-center gap-4 text-sm text-gray-600">
-                  <span className="px-3 py-1 bg-white rounded-full shadow-sm">
+                <div className="flex items-center gap-4 text-sm text-muted-foreground">
+                  <span className="px-3 py-1 bg-card rounded-full shadow-sm">
                     {model.provider}
                   </span>
-                  <span className="px-3 py-1 bg-white rounded-full shadow-sm capitalize">
+                  <span className="px-3 py-1 bg-card rounded-full shadow-sm capitalize">
                     {model.category || 'LLM'}
                   </span>
                   {model.context_length && (
-                    <span className="px-3 py-1 bg-white rounded-full shadow-sm">
+                    <span className="px-3 py-1 bg-card rounded-full shadow-sm">
                       {model.context_length.toLocaleString()} tokens
                     </span>
                   )}
@@ -132,21 +133,24 @@ export default function ModelStatsPage() {
               <div className="text-4xl mb-1">
                 {getMoodEmoji(((model.current_performance || 0) + (model.current_intelligence || 0)) / 2)}
               </div>
-              <p className="text-sm text-gray-600">Current Mood</p>
+              <p className="text-sm text-muted-foreground">Current Mood</p>
             </div>
+          </div>
+          <div className="absolute top-4 right-4">
+            <ThemeToggle />
           </div>
         </div>
       </header>
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="mb-8">
-          <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-200">
+          <div className="bg-card rounded-xl p-6 shadow-sm border">
             <div className="flex items-center justify-between mb-6">
               <div>
-                <h2 className="text-lg font-semibold text-gray-900">Time Period</h2>
-                <p className="text-sm text-gray-500 mt-1">Select the date range for historical data</p>
+                <h2 className="text-lg font-semibold text-foreground">Time Period</h2>
+                <p className="text-sm text-muted-foreground mt-1">Select the date range for historical data</p>
               </div>
-              <div className="flex items-center gap-2 text-sm text-gray-600">
+              <div className="flex items-center gap-2 text-sm text-muted-foreground">
                 <Calendar className="w-4 h-4" />
                 <span>{stats.length} data points</span>
               </div>
@@ -159,8 +163,8 @@ export default function ModelStatsPage() {
                   className={cn(
                     "px-4 py-2 rounded-lg text-sm font-medium transition-all",
                     days === d
-                      ? "bg-blue-500 text-white shadow-md transform scale-105"
-                      : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+                      ? "bg-primary text-primary-foreground shadow-md transform scale-105"
+                      : "bg-muted text-foreground hover:bg-accent"
                   )}
                 >
                   {d} days
@@ -173,23 +177,23 @@ export default function ModelStatsPage() {
         {stats.length > 0 ? (
           <StatsChart data={stats} modelName={model.name} />
         ) : (
-          <div className="bg-white rounded-xl border border-gray-200 p-12 text-center">
-            <p className="text-gray-500">No statistics available for this period</p>
+          <div className="bg-card rounded-xl border p-12 text-center">
+            <p className="text-muted-foreground">No statistics available for this period</p>
           </div>
         )}
 
         <div className="mt-8">
-          <h2 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
+          <h2 className="text-lg font-semibold text-foreground mb-4 flex items-center gap-2">
             <Sparkles className="w-5 h-5 text-yellow-500" />
             Current Metrics
           </h2>
           <div className="grid gap-4 md:grid-cols-4">
             {[
-              { name: 'Performance', icon: TrendingUp, color: 'blue' },
-              { name: 'Speed', icon: TrendingUp, color: 'green' },
-              { name: 'Intelligence', icon: Brain, color: 'purple' },
-              { name: 'Reliability', icon: TrendingUp, color: 'amber' }
-            ].map(({ name, icon: Icon, color }) => {
+              { name: 'Performance', icon: TrendingUp, bgColor: 'bg-blue-50', iconColor: 'text-blue-600' },
+              { name: 'Speed', icon: TrendingUp, bgColor: 'bg-green-50', iconColor: 'text-green-600' },
+              { name: 'Intelligence', icon: Brain, bgColor: 'bg-purple-50', iconColor: 'text-purple-600' },
+              { name: 'Reliability', icon: TrendingUp, bgColor: 'bg-amber-50', iconColor: 'text-amber-600' }
+            ].map(({ name, icon: Icon, bgColor, iconColor }) => {
               const metric = name.toLowerCase();
               const latestStat = stats[stats.length - 1];
               const rawValue = latestStat ? latestStat[metric as keyof StatsData] : 0;
@@ -201,14 +205,14 @@ export default function ModelStatsPage() {
               const percentChange = previousValue > 0 ? ((change / previousValue) * 100) : 0;
 
               return (
-                <div key={name} className="bg-white rounded-xl border border-gray-200 p-5 hover:shadow-md transition-all">
+                <div key={name} className="bg-card rounded-xl border p-5 hover:shadow-md transition-all">
                   <div className="flex items-center justify-between mb-3">
-                    <h3 className="text-sm font-medium text-gray-600">{name}</h3>
+                    <h3 className="text-sm font-medium text-muted-foreground">{name}</h3>
                     <div className={cn(
                       "p-2 rounded-lg",
-                      `bg-${color}-50`
+                      bgColor
                     )}>
-                      <Icon className={cn("w-4 h-4", `text-${color}-600`)} />
+                      <Icon className={cn("w-4 h-4", iconColor)} />
                     </div>
                   </div>
                   <div className="flex items-baseline justify-between">
@@ -225,11 +229,11 @@ export default function ModelStatsPage() {
                         ) : change < 0 ? (
                           <TrendingDown className="w-4 h-4 text-red-600" />
                         ) : (
-                          <Minus className="w-4 h-4 text-gray-400" />
+                          <Minus className="w-4 h-4 text-muted-foreground" />
                         )}
                         <span className={cn(
                           "text-sm font-medium",
-                          change > 0 ? "text-green-600" : change < 0 ? "text-red-600" : "text-gray-400"
+                          change > 0 ? "text-green-600" : change < 0 ? "text-red-600" : "text-muted-foreground"
                         )}>
                           {Math.abs(percentChange).toFixed(1)}%
                         </span>
@@ -237,7 +241,7 @@ export default function ModelStatsPage() {
                     )}
                   </div>
                   {latestStat && (
-                    <div className="mt-3 flex items-center gap-1 text-xs text-gray-500">
+                    <div className="mt-3 flex items-center gap-1 text-xs text-muted-foreground">
                       <Users className="w-3 h-3" />
                       <span>{latestStat.votes} votes</span>
                     </div>
@@ -255,13 +259,13 @@ export default function ModelStatsPage() {
 
         {/* Development Credit */}
         <div className="mt-12 text-center pb-8">
-          <p className="text-xs text-gray-400">
+          <p className="text-xs text-muted-foreground/70">
             Real-time tracking by{' '}
             <a 
               href="https://fourtwenty.dev" 
               target="_blank" 
               rel="noopener noreferrer"
-              className="text-gray-500 hover:text-gray-700 transition-colors underline-offset-2 hover:underline"
+              className="text-muted-foreground hover:text-foreground transition-colors underline-offset-2 hover:underline"
             >
               FourTwenty Development
             </a>

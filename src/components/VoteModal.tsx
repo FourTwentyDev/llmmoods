@@ -94,12 +94,12 @@ export function VoteModal({ model, open, onOpenChange, onVoteSubmit }: VoteModal
     <Dialog.Root open={open} onOpenChange={onOpenChange}>
       <Dialog.Portal>
         <Dialog.Overlay className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50" />
-        <Dialog.Content className="fixed left-[50%] top-[50%] -translate-x-[50%] -translate-y-[50%] w-[90vw] max-w-md bg-white rounded-2xl shadow-2xl z-50 animate-in fade-in zoom-in-95 duration-200">
+        <Dialog.Content className="fixed left-[50%] top-[50%] -translate-x-[50%] -translate-y-[50%] w-[90vw] max-w-md bg-card rounded-2xl shadow-2xl z-50 animate-in fade-in zoom-in-95 duration-200">
           <div className="p-6">
             <Dialog.Title className="text-xl font-semibold mb-1">
               How&apos;s {model.name} today?
             </Dialog.Title>
-            <Dialog.Description className="text-gray-500 text-sm mb-6">
+            <Dialog.Description className="text-muted-foreground text-sm mb-6">
               Rate your experience with this model
             </Dialog.Description>
             
@@ -109,7 +109,7 @@ export function VoteModal({ model, open, onOpenChange, onVoteSubmit }: VoteModal
                   key={idx}
                   className={cn(
                     "h-1 flex-1 rounded-full transition-colors",
-                    idx <= step ? "bg-blue-500" : "bg-gray-200"
+                    idx <= step ? "bg-primary" : "bg-muted"
                   )}
                 />
               ))}
@@ -118,7 +118,7 @@ export function VoteModal({ model, open, onOpenChange, onVoteSubmit }: VoteModal
             {step < 4 && currentCategory && (
               <div className="space-y-4">
                 <div className="flex items-center gap-2 mb-4">
-                  <currentCategory.icon className="w-5 h-5 text-gray-600" />
+                  <currentCategory.icon className="w-5 h-5 text-muted-foreground" />
                   <span className="font-medium">{currentCategory.label}</span>
                 </div>
                 <div className="grid grid-cols-2 gap-3">
@@ -129,8 +129,8 @@ export function VoteModal({ model, open, onOpenChange, onVoteSubmit }: VoteModal
                       className={cn(
                         "p-4 rounded-xl border-2 transition-all hover:scale-105 flex flex-col items-center justify-center h-24",
                         ratings[currentCategory.key as keyof Vote['ratings']] === option.value
-                          ? "border-blue-500 bg-blue-50 shadow-md"
-                          : "border-gray-200 hover:border-gray-300 hover:shadow-sm"
+                          ? "border-primary bg-primary/10 shadow-md"
+                          : "border hover:border-muted-foreground hover:shadow-sm"
                       )}
                     >
                       <div className="text-2xl mb-1">{option.emoji}</div>
@@ -152,8 +152,8 @@ export function VoteModal({ model, open, onOpenChange, onVoteSubmit }: VoteModal
                       className={cn(
                         "px-4 py-3 rounded-lg text-sm transition-all font-medium",
                         issueType === issue.value
-                          ? "bg-blue-500 text-white shadow-md"
-                          : "bg-gray-100 hover:bg-gray-200 hover:shadow-sm"
+                          ? "bg-primary text-primary-foreground shadow-md"
+                          : "bg-muted hover:bg-accent hover:shadow-sm"
                       )}
                     >
                       {issue.label}
@@ -166,13 +166,13 @@ export function VoteModal({ model, open, onOpenChange, onVoteSubmit }: VoteModal
                       setIssueType('');
                       handleSubmit();
                     }}
-                    className="flex-1 py-3 bg-gray-200 text-gray-700 rounded-lg font-medium hover:bg-gray-300 transition-colors"
+                    className="flex-1 py-3 bg-muted text-muted-foreground rounded-lg font-medium hover:bg-accent transition-colors"
                   >
                     Skip
                   </button>
                   <button
                     onClick={handleSubmit}
-                    className="flex-1 py-3 bg-blue-500 text-white rounded-lg font-medium hover:bg-blue-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                    className="flex-1 py-3 bg-primary text-primary-foreground rounded-lg font-medium hover:bg-primary/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                     disabled={!issueType}
                   >
                     Submit with Issue
@@ -182,7 +182,7 @@ export function VoteModal({ model, open, onOpenChange, onVoteSubmit }: VoteModal
             )}
           </div>
           
-          <Dialog.Close className="absolute right-4 top-4 p-1 rounded-lg hover:bg-gray-100 transition-colors">
+          <Dialog.Close className="absolute right-4 top-4 p-1 rounded-lg hover:bg-accent transition-colors">
             <X className="w-4 h-4" />
           </Dialog.Close>
         </Dialog.Content>

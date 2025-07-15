@@ -1,6 +1,6 @@
 'use client';
 
-import { useMemo } from 'react';
+import { useMemo, useEffect, useState } from 'react';
 import {
   LineChart,
   Line,
@@ -28,6 +28,24 @@ interface StatsChartProps {
 }
 
 export function StatsChart({ data }: StatsChartProps) {
+  const [chartColors, setChartColors] = useState({
+    chart1: '#3b82f6',
+    chart2: '#8b5cf6',
+    chart3: '#10b981',
+    chart4: '#f59e0b',
+  });
+
+  useEffect(() => {
+    // Get computed styles to read CSS variables
+    const computedStyle = getComputedStyle(document.documentElement);
+    setChartColors({
+      chart1: computedStyle.getPropertyValue('--chart-1').trim() || '#3b82f6',
+      chart2: computedStyle.getPropertyValue('--chart-2').trim() || '#8b5cf6',
+      chart3: computedStyle.getPropertyValue('--chart-3').trim() || '#10b981',
+      chart4: computedStyle.getPropertyValue('--chart-4').trim() || '#f59e0b',
+    });
+  }, []);
+
   const chartData = useMemo(() => {
     return data.map(item => ({
       ...item,
@@ -42,14 +60,14 @@ export function StatsChart({ data }: StatsChartProps) {
   }) => {
     if (active && payload && payload.length) {
       return (
-        <div className="bg-white p-4 border border-gray-200 rounded-lg shadow-lg">
-          <p className="font-medium text-gray-900 mb-2">{label}</p>
+        <div className="bg-card p-4 border rounded-lg shadow-lg">
+          <p className="font-medium text-foreground mb-2">{label}</p>
           {payload.map((entry, index: number) => (
             <p key={index} className="text-sm" style={{ color: entry.color }}>
               <span className="font-medium">{entry.name}:</span> {entry.value.toFixed(2)}
             </p>
           ))}
-          <p className="text-sm text-gray-500 mt-2">
+          <p className="text-sm text-muted-foreground mt-2">
             {data.find(d => formatDate(d.date) === label)?.votes || 0} votes
           </p>
         </div>
@@ -59,10 +77,10 @@ export function StatsChart({ data }: StatsChartProps) {
   };
 
   return (
-    <div className="w-full bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
-      <div className="p-6 border-b border-gray-100">
-        <h3 className="text-xl font-bold text-gray-900">Performance History</h3>
-        <p className="text-sm text-gray-500 mt-1">Daily average ratings from community votes</p>
+    <div className="w-full bg-card rounded-xl shadow-sm border overflow-hidden">
+      <div className="p-6 border-b">
+        <h3 className="text-xl font-bold text-foreground">Performance History</h3>
+        <p className="text-sm text-muted-foreground mt-1">Daily average ratings from community votes</p>
       </div>
       <div className="p-6">
         <div className="h-[400px]">
@@ -70,35 +88,37 @@ export function StatsChart({ data }: StatsChartProps) {
             <LineChart data={chartData} margin={{ top: 5, right: 30, left: 0, bottom: 20 }}>
               <defs>
                 <linearGradient id="colorPerformance" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="5%" stopColor="#3b82f6" stopOpacity={0.8}/>
-                  <stop offset="95%" stopColor="#3b82f6" stopOpacity={0.1}/>
+                  <stop offset="5%" stopColor={chartColors.chart1} stopOpacity={0.8}/>
+                  <stop offset="95%" stopColor={chartColors.chart1} stopOpacity={0.1}/>
                 </linearGradient>
                 <linearGradient id="colorIntelligence" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="5%" stopColor="#8b5cf6" stopOpacity={0.8}/>
-                  <stop offset="95%" stopColor="#8b5cf6" stopOpacity={0.1}/>
+                  <stop offset="5%" stopColor={chartColors.chart2} stopOpacity={0.8}/>
+                  <stop offset="95%" stopColor={chartColors.chart2} stopOpacity={0.1}/>
                 </linearGradient>
                 <linearGradient id="colorSpeed" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="5%" stopColor="#10b981" stopOpacity={0.8}/>
-                  <stop offset="95%" stopColor="#10b981" stopOpacity={0.1}/>
+                  <stop offset="5%" stopColor={chartColors.chart3} stopOpacity={0.8}/>
+                  <stop offset="95%" stopColor={chartColors.chart3} stopOpacity={0.1}/>
                 </linearGradient>
                 <linearGradient id="colorReliability" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="5%" stopColor="#f59e0b" stopOpacity={0.8}/>
-                  <stop offset="95%" stopColor="#f59e0b" stopOpacity={0.1}/>
+                  <stop offset="5%" stopColor={chartColors.chart4} stopOpacity={0.8}/>
+                  <stop offset="95%" stopColor={chartColors.chart4} stopOpacity={0.1}/>
                 </linearGradient>
               </defs>
-              <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" vertical={false} />
+              <CartesianGrid strokeDasharray="3 3" stroke="currentColor" opacity={0.1} vertical={false} />
               <XAxis 
                 dataKey="date" 
-                tick={{ fontSize: 12, fill: '#6b7280' }}
+                tick={{ fontSize: 12, fill: 'currentColor' }}
                 tickLine={false}
-                axisLine={{ stroke: '#e5e7eb' }}
+                axisLine={{ stroke: 'currentColor' }}
+                className="text-muted-foreground [&_.recharts-cartesian-axis-line]:stroke-border"
               />
               <YAxis 
                 domain={[0, 5]} 
-                tick={{ fontSize: 12, fill: '#6b7280' }}
+                tick={{ fontSize: 12, fill: 'currentColor' }}
                 tickLine={false}
-                axisLine={{ stroke: '#e5e7eb' }}
+                axisLine={{ stroke: 'currentColor' }}
                 ticks={[0, 1, 2, 3, 4, 5]}
+                className="text-muted-foreground [&_.recharts-cartesian-axis-line]:stroke-border"
               />
               <Tooltip content={<CustomTooltip />} />
               <Legend 
@@ -109,36 +129,36 @@ export function StatsChart({ data }: StatsChartProps) {
               <Line
                 type="monotone"
                 dataKey="performance"
-                stroke="#3b82f6"
+                stroke={chartColors.chart1}
                 strokeWidth={3}
-                dot={{ r: 4, fill: '#3b82f6' }}
+                dot={{ r: 4, fill: chartColors.chart1 }}
                 activeDot={{ r: 6 }}
                 name="Performance"
               />
               <Line
                 type="monotone"
                 dataKey="intelligence"
-                stroke="#8b5cf6"
+                stroke={chartColors.chart2}
                 strokeWidth={3}
-                dot={{ r: 4, fill: '#8b5cf6' }}
+                dot={{ r: 4, fill: chartColors.chart2 }}
                 activeDot={{ r: 6 }}
                 name="Intelligence"
               />
               <Line
                 type="monotone"
                 dataKey="speed"
-                stroke="#10b981"
+                stroke={chartColors.chart3}
                 strokeWidth={3}
-                dot={{ r: 4, fill: '#10b981' }}
+                dot={{ r: 4, fill: chartColors.chart3 }}
                 activeDot={{ r: 6 }}
                 name="Speed"
               />
               <Line
                 type="monotone"
                 dataKey="reliability"
-                stroke="#f59e0b"
+                stroke={chartColors.chart4}
                 strokeWidth={3}
-                dot={{ r: 4, fill: '#f59e0b' }}
+                dot={{ r: 4, fill: chartColors.chart4 }}
                 activeDot={{ r: 6 }}
                 name="Reliability"
               />

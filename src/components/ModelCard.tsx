@@ -26,7 +26,7 @@ export function ModelCard({ model, onVoteClick, hasVoted }: ModelCardProps) {
   };
 
   return (
-    <div className="bg-white rounded-xl shadow-sm border border-gray-200 hover:shadow-md transition-all flex flex-col h-full relative group">
+    <div className="bg-card rounded-xl shadow-sm border hover:shadow-md transition-all flex flex-col h-full relative group">
       <Link 
         href={`/stats/${encodeURIComponent(model.id)}`}
         className="absolute inset-0 z-10 rounded-xl"
@@ -36,8 +36,8 @@ export function ModelCard({ model, onVoteClick, hasVoted }: ModelCardProps) {
       <div className="p-6 flex flex-col h-full">
         <div className="flex items-start justify-between mb-4">
           <div className="flex-1 pr-2">
-            <h3 className="text-lg font-semibold line-clamp-2 group-hover:text-blue-600 transition-colors">{model.name}</h3>
-            <p className="text-sm text-gray-500">{model.provider}</p>
+            <h3 className="text-lg font-semibold line-clamp-2 group-hover:text-primary transition-colors">{model.name}</h3>
+            <p className="text-sm text-muted-foreground">{model.provider}</p>
           </div>
           <div className={cn("text-3xl flex-shrink-0", getMoodColor(overallScore))}>
             {getMoodEmoji(overallScore)}
@@ -60,8 +60,8 @@ export function ModelCard({ model, onVoteClick, hasVoted }: ModelCardProps) {
         </div>
 
         <div className="space-y-3">
-          <div className="flex items-center gap-1 text-sm text-gray-600">
-            <Users className="w-4 h-4 text-gray-400" />
+          <div className="flex items-center gap-1 text-sm text-muted-foreground">
+            <Users className="w-4 h-4 text-muted-foreground/70" />
             <span>{model.votes_today || 0} votes today</span>
           </div>
           
@@ -75,15 +75,15 @@ export function ModelCard({ model, onVoteClick, hasVoted }: ModelCardProps) {
               className={cn(
                 "flex-1 py-2 px-4 rounded-lg font-medium transition-all relative z-20",
                 hasVoted
-                  ? "bg-gray-100 text-gray-400 cursor-not-allowed"
-                  : "bg-blue-500 text-white hover:bg-blue-600"
+                  ? "bg-secondary text-muted-foreground cursor-not-allowed"
+                  : "bg-primary text-primary-foreground hover:bg-primary/90"
               )}
             >
               {hasVoted ? 'Already voted' : 'Rate'}
             </button>
             <button
               onClick={handleCompare}
-              className="px-3 py-2 rounded-lg bg-gray-100 hover:bg-gray-200 text-gray-700 transition-all relative z-20"
+              className="px-3 py-2 rounded-lg bg-secondary hover:bg-secondary/80 text-secondary-foreground transition-all relative z-20"
               title="Compare with other models"
             >
               <GitCompare className="w-5 h-5" />

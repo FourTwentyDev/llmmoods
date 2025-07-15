@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { Brain, TrendingUp, Users, Award, ArrowUpRight, ArrowDownRight } from 'lucide-react';
+import { ThemeToggle } from '@/components/ThemeToggle';
 import { getMoodEmoji, getMoodColor, cn } from '@/lib/utils';
 import { Line, LineChart, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, BarChart, Bar } from 'recharts';
 
@@ -85,16 +86,16 @@ export default function StatsPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="text-gray-500">Loading statistics...</div>
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <div className="text-muted-foreground">Loading statistics...</div>
       </div>
     );
   }
 
   if (!data) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="text-gray-500">Failed to load statistics</div>
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <div className="text-muted-foreground">Failed to load statistics</div>
       </div>
     );
   }
@@ -105,20 +106,23 @@ export default function StatsPage() {
   };
 
   return (
-    <main className="min-h-screen bg-gray-50">
-      <header className="bg-white border-b border-gray-200">
+    <main className="min-h-screen bg-background">
+      <header className="bg-card border-b">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
-              <Brain className="w-8 h-8 text-blue-500" />
-              <h1 className="text-2xl font-bold text-gray-900">Overall Statistics</h1>
+              <Brain className="w-8 h-8 text-primary" />
+              <h1 className="text-2xl font-bold text-foreground">Overall Statistics</h1>
             </div>
-            <Link 
-              href="/" 
-              className="text-sm text-gray-600 hover:text-gray-900"
+            <div className="flex items-center gap-4">
+              <Link 
+                href="/" 
+                className="text-sm text-muted-foreground hover:text-foreground"
             >
-              Back to voting
-            </Link>
+                Back to voting
+              </Link>
+              <ThemeToggle />
+            </div>
           </div>
         </div>
       </header>
@@ -126,7 +130,7 @@ export default function StatsPage() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Period Selector */}
         <div className="mb-8 flex items-center gap-2">
-          <span className="text-sm text-gray-600">Time range:</span>
+          <span className="text-sm text-muted-foreground">Time range:</span>
           {[7, 30, 90].map((d) => (
             <button
               key={d}
@@ -134,8 +138,8 @@ export default function StatsPage() {
               className={cn(
                 "px-3 py-1 rounded-lg text-sm font-medium transition-colors",
                 period === d
-                  ? "bg-blue-500 text-white"
-                  : "bg-white text-gray-700 hover:bg-gray-100"
+                  ? "bg-primary text-primary-foreground"
+                  : "bg-card text-foreground hover:bg-accent"
               )}
             >
               {d} days
@@ -145,28 +149,28 @@ export default function StatsPage() {
 
         {/* Aggregate Stats Cards */}
         <div className="grid gap-4 md:grid-cols-4 mb-8">
-          <div className="bg-white rounded-lg border border-gray-200 p-4">
-            <div className="flex items-center gap-2 text-gray-600 mb-2">
+          <div className="bg-card rounded-lg border p-4">
+            <div className="flex items-center gap-2 text-muted-foreground mb-2">
               <Brain className="w-4 h-4" />
               <h3 className="text-sm font-medium">Total Models</h3>
             </div>
             <p className="text-2xl font-semibold">{data.aggregateStats.total_models}</p>
-            <p className="text-sm text-gray-500 mt-1">
+            <p className="text-sm text-muted-foreground mt-1">
               {data.aggregateStats.models_with_votes} with votes
             </p>
           </div>
 
-          <div className="bg-white rounded-lg border border-gray-200 p-4">
-            <div className="flex items-center gap-2 text-gray-600 mb-2">
+          <div className="bg-card rounded-lg border p-4">
+            <div className="flex items-center gap-2 text-muted-foreground mb-2">
               <Users className="w-4 h-4" />
               <h3 className="text-sm font-medium">Total Votes</h3>
             </div>
             <p className="text-2xl font-semibold">{data.aggregateStats.total_votes.toLocaleString()}</p>
-            <p className="text-sm text-gray-500 mt-1">in last {period} days</p>
+            <p className="text-sm text-muted-foreground mt-1">in last {period} days</p>
           </div>
 
-          <div className="bg-white rounded-lg border border-gray-200 p-4">
-            <div className="flex items-center gap-2 text-gray-600 mb-2">
+          <div className="bg-card rounded-lg border p-4">
+            <div className="flex items-center gap-2 text-muted-foreground mb-2">
               <Award className="w-4 h-4" />
               <h3 className="text-sm font-medium">Avg Performance</h3>
             </div>
@@ -180,8 +184,8 @@ export default function StatsPage() {
             </div>
           </div>
 
-          <div className="bg-white rounded-lg border border-gray-200 p-4">
-            <div className="flex items-center gap-2 text-gray-600 mb-2">
+          <div className="bg-card rounded-lg border p-4">
+            <div className="flex items-center gap-2 text-muted-foreground mb-2">
               <Brain className="w-4 h-4" />
               <h3 className="text-sm font-medium">Avg Intelligence</h3>
             </div>
@@ -198,22 +202,22 @@ export default function StatsPage() {
 
         {/* Voting Trends Chart */}
         {data.trends.length > 0 && (
-          <div className="bg-white rounded-xl border border-gray-200 p-6 mb-8">
+          <div className="bg-card rounded-xl border p-6 mb-8">
             <h2 className="text-lg font-semibold mb-4">Voting Activity</h2>
             <div className="h-64">
               <ResponsiveContainer width="100%" height="100%">
                 <LineChart data={data.trends}>
-                  <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
+                  <CartesianGrid strokeDasharray="3 3" stroke="currentColor" opacity={0.1} />
                   <XAxis 
                     dataKey="date" 
                     tickFormatter={formatDate}
-                    stroke="#9CA3AF"
+                    stroke="currentColor" opacity={0.5}
                     fontSize={12}
                   />
                   <YAxis stroke="#9CA3AF" fontSize={12} />
                   <Tooltip 
                     labelFormatter={(value) => formatDate(value as string)}
-                    contentStyle={{ borderRadius: '8px', border: '1px solid #e5e7eb' }}
+                    contentStyle={{ borderRadius: '8px', border: '1px solid var(--border)', backgroundColor: 'var(--card)', color: 'var(--foreground)' }}
                   />
                   <Line 
                     type="monotone" 
@@ -240,20 +244,20 @@ export default function StatsPage() {
         {/* Top Models Grid */}
         <div className="grid gap-8 md:grid-cols-2 mb-8">
           {/* Top Performing Models */}
-          <div className="bg-white rounded-xl border border-gray-200 p-6">
+          <div className="bg-card rounded-xl border p-6">
             <h2 className="text-lg font-semibold mb-4">Top Performing Models</h2>
             <div className="space-y-3">
               {data.topModels.byPerformance.slice(0, 5).map((model, index) => (
                 <Link
                   key={model.id}
                   href={`/stats/${encodeURIComponent(model.id)}`}
-                  className="flex items-center justify-between p-3 rounded-lg hover:bg-gray-50 transition-colors"
+                  className="flex items-center justify-between p-3 rounded-lg hover:bg-accent transition-colors"
                 >
                   <div className="flex items-center gap-3">
-                    <span className="text-lg font-medium text-gray-400 w-6">#{index + 1}</span>
+                    <span className="text-lg font-medium text-muted-foreground w-6">#{index + 1}</span>
                     <div>
                       <p className="font-medium">{model.name}</p>
-                      <p className="text-sm text-gray-500">{model.provider}</p>
+                      <p className="text-sm text-muted-foreground">{model.provider}</p>
                     </div>
                   </div>
                   <div className="flex items-center gap-2">
@@ -270,24 +274,24 @@ export default function StatsPage() {
           </div>
 
           {/* Most Voted Models */}
-          <div className="bg-white rounded-xl border border-gray-200 p-6">
+          <div className="bg-card rounded-xl border p-6">
             <h2 className="text-lg font-semibold mb-4">Most Voted Models</h2>
             <div className="space-y-3">
               {data.topModels.byVotes.slice(0, 5).map((model, index) => (
                 <Link
                   key={model.id}
                   href={`/stats/${encodeURIComponent(model.id)}`}
-                  className="flex items-center justify-between p-3 rounded-lg hover:bg-gray-50 transition-colors"
+                  className="flex items-center justify-between p-3 rounded-lg hover:bg-accent transition-colors"
                 >
                   <div className="flex items-center gap-3">
-                    <span className="text-lg font-medium text-gray-400 w-6">#{index + 1}</span>
+                    <span className="text-lg font-medium text-muted-foreground w-6">#{index + 1}</span>
                     <div>
                       <p className="font-medium">{model.name}</p>
-                      <p className="text-sm text-gray-500">{model.provider}</p>
+                      <p className="text-sm text-muted-foreground">{model.provider}</p>
                     </div>
                   </div>
                   <div className="flex items-center gap-2">
-                    <Users className="w-4 h-4 text-gray-400" />
+                    <Users className="w-4 h-4 text-muted-foreground" />
                     <span className="text-sm font-medium">
                       {model.total_votes.toLocaleString()} votes
                     </span>
@@ -300,7 +304,7 @@ export default function StatsPage() {
 
         {/* Trending Models */}
         {data.topModels.trending.length > 0 && (
-          <div className="bg-white rounded-xl border border-gray-200 p-6 mb-8">
+          <div className="bg-card rounded-xl border p-6 mb-8">
             <h2 className="text-lg font-semibold mb-4 flex items-center gap-2">
               <TrendingUp className="w-5 h-5 text-green-600" />
               Trending Today
@@ -310,13 +314,13 @@ export default function StatsPage() {
                 <Link
                   key={model.id}
                   href={`/stats/${encodeURIComponent(model.id)}`}
-                  className="p-4 rounded-lg border border-gray-200 hover:shadow-md transition-all"
+                  className="p-4 rounded-lg border hover:shadow-md transition-all"
                 >
                   <h3 className="font-medium mb-1">{model.name}</h3>
-                  <p className="text-sm text-gray-500 mb-3">{model.provider}</p>
+                  <p className="text-sm text-muted-foreground mb-3">{model.provider}</p>
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-1">
-                      <Users className="w-4 h-4 text-gray-400" />
+                      <Users className="w-4 h-4 text-muted-foreground" />
                       <span className="text-sm">{model.votes_today} today</span>
                     </div>
                     <div className="flex items-center gap-1">
@@ -340,7 +344,7 @@ export default function StatsPage() {
         )}
 
         {/* Stats by Provider */}
-        <div className="bg-white rounded-xl border border-gray-200 p-6 mb-8">
+        <div className="bg-card rounded-xl border p-6 mb-8">
           <h2 className="text-lg font-semibold mb-4">Statistics by Provider</h2>
           <div className="h-64">
             <ResponsiveContainer width="100%" height="100%">
@@ -357,15 +361,15 @@ export default function StatsPage() {
           </div>
           <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3 mt-6">
             {data.byProvider.slice(0, 6).map((provider) => (
-              <div key={provider.provider} className="p-4 rounded-lg border border-gray-200">
+              <div key={provider.provider} className="p-4 rounded-lg border">
                 <h3 className="font-medium mb-2">{provider.provider}</h3>
                 <div className="space-y-1 text-sm">
-                  <p className="text-gray-600">
+                  <p className="text-muted-foreground">
                     {provider.modelCount} models ({provider.modelsWithVotes} with votes)
                   </p>
-                  <p className="text-gray-600">{provider.totalVotes.toLocaleString()} total votes</p>
+                  <p className="text-muted-foreground">{provider.totalVotes.toLocaleString()} total votes</p>
                   <div className="flex items-center gap-2 mt-2">
-                    <span className="text-gray-600">Avg Performance:</span>
+                    <span className="text-muted-foreground">Avg Performance:</span>
                     <span className="font-medium">{provider.avgPerformance.toFixed(2)}</span>
                     <span className={cn("text-lg", getMoodColor(provider.avgPerformance))}>
                       {getMoodEmoji(provider.avgPerformance)}
@@ -378,19 +382,19 @@ export default function StatsPage() {
         </div>
 
         {/* Stats by Category */}
-        <div className="bg-white rounded-xl border border-gray-200 p-6">
+        <div className="bg-card rounded-xl border p-6">
           <h2 className="text-lg font-semibold mb-4">Statistics by Category</h2>
           <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
             {data.byCategory.map((category) => (
-              <div key={category.category} className="p-4 rounded-lg border border-gray-200">
+              <div key={category.category} className="p-4 rounded-lg border">
                 <h3 className="font-medium mb-2 capitalize">{category.category || 'Uncategorized'}</h3>
                 <div className="space-y-1 text-sm">
-                  <p className="text-gray-600">
+                  <p className="text-muted-foreground">
                     {category.modelCount} models
                   </p>
-                  <p className="text-gray-600">{category.totalVotes.toLocaleString()} votes</p>
+                  <p className="text-muted-foreground">{category.totalVotes.toLocaleString()} votes</p>
                   <div className="flex items-center gap-2 mt-2">
-                    <span className="text-gray-600">Performance:</span>
+                    <span className="text-muted-foreground">Performance:</span>
                     <span className="font-medium">{category.avgPerformance.toFixed(2)}</span>
                     <span className={cn("text-lg", getMoodColor(category.avgPerformance))}>
                       {getMoodEmoji(category.avgPerformance)}
@@ -404,13 +408,13 @@ export default function StatsPage() {
 
         {/* Development Credit */}
         <div className="mt-12 text-center pb-8">
-          <p className="text-xs text-gray-400">
+          <p className="text-xs text-muted-foreground/60">
             Analytics powered by{' '}
             <a 
               href="https://fourtwenty.dev" 
               target="_blank" 
               rel="noopener noreferrer"
-              className="text-gray-500 hover:text-gray-700 transition-colors underline-offset-2 hover:underline"
+              className="text-muted-foreground hover:text-foreground transition-colors underline-offset-2 hover:underline"
             >
               FourTwenty Development
             </a>

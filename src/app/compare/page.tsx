@@ -5,6 +5,7 @@ import { useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { Model } from '@/types';
 import { Brain, ArrowLeft, Plus, X, TrendingUp, Zap, Shield, Share2, Twitter, Link2 } from 'lucide-react';
+import { ThemeToggle } from '@/components/ThemeToggle';
 import { getMoodEmoji, cn } from '@/lib/utils';
 import { Line, LineChart, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend } from 'recharts';
 
@@ -159,34 +160,34 @@ function CompareContent() {
   };
 
   return (
-    <main className="min-h-screen bg-gray-50">
-      <header className="bg-white border-b border-gray-200">
+    <main className="min-h-screen bg-background">
+      <header className="bg-card border-b">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
-              <Link href="/" className="p-2 hover:bg-gray-100 rounded-lg">
+              <Link href="/" className="p-2 hover:bg-accent rounded-lg">
                 <ArrowLeft className="w-5 h-5" />
               </Link>
-              <Brain className="w-8 h-8 text-blue-500" />
+              <Brain className="w-8 h-8 text-primary" />
               <div>
-                <h1 className="text-2xl font-bold text-gray-900">Compare Models</h1>
-                <p className="text-sm text-gray-600">Compare up to 4 models side by side</p>
+                <h1 className="text-2xl font-bold text-foreground">Compare Models</h1>
+                <p className="text-sm text-muted-foreground">Compare up to 4 models side by side</p>
               </div>
             </div>
             {selectedModels.length > 0 && (
               <div className="relative">
                 <button
                   onClick={() => setShowShareMenu(!showShareMenu)}
-                  className="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 flex items-center gap-2"
+                  className="px-4 py-2 bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 flex items-center gap-2"
                 >
                   <Share2 className="w-4 h-4" />
                   Share
                 </button>
                 {showShareMenu && (
-                  <div className="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg border border-gray-200 overflow-hidden">
+                  <div className="absolute right-0 mt-2 w-48 bg-card rounded-lg shadow-lg border overflow-hidden">
                     <button
                       onClick={shareOnTwitter}
-                      className="w-full px-4 py-3 text-left hover:bg-gray-50 flex items-center gap-3"
+                      className="w-full px-4 py-3 text-left hover:bg-accent flex items-center gap-3"
                     >
                       <Twitter className="w-4 h-4" />
                       Share on Twitter
@@ -202,13 +203,14 @@ function CompareContent() {
                 )}
               </div>
             )}
+            <ThemeToggle />
           </div>
         </div>
       </header>
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Model Selection */}
-        <div className="bg-white rounded-xl border border-gray-200 p-6 mb-8">
+        <div className="bg-card rounded-xl border p-6 mb-8">
           <h2 className="text-lg font-semibold mb-4">Selected Models</h2>
           <div className="grid gap-4 md:grid-cols-4">
             {selectedModels.map((model, index) => (
@@ -224,7 +226,7 @@ function CompareContent() {
                   <X className="w-4 h-4" />
                 </button>
                 <h3 className="font-medium line-clamp-1">{model.name}</h3>
-                <p className="text-sm text-gray-500">{model.provider}</p>
+                <p className="text-sm text-muted-foreground">{model.provider}</p>
                 <div className="mt-2 text-2xl">
                   {getMoodEmoji(((model.current_performance || 0) + (model.current_intelligence || 0)) / 2)}
                 </div>
@@ -233,10 +235,10 @@ function CompareContent() {
             {selectedModels.length < 4 && (
               <button
                 onClick={() => setShowModelPicker(true)}
-                className="p-4 rounded-lg border-2 border-dashed border-gray-300 hover:border-gray-400 flex flex-col items-center justify-center gap-2 transition-colors"
+                className="p-4 rounded-lg border-2 border-dashed border-muted hover:border-muted-foreground/50 flex flex-col items-center justify-center gap-2 transition-colors"
               >
-                <Plus className="w-6 h-6 text-gray-400" />
-                <span className="text-sm text-gray-500">Add Model</span>
+                <Plus className="w-6 h-6 text-muted-foreground" />
+                <span className="text-sm text-muted-foreground">Add Model</span>
               </button>
             )}
           </div>
@@ -244,12 +246,12 @@ function CompareContent() {
 
         {/* Comparison Chart */}
         {selectedModels.length > 0 && compareData.length > 0 && (
-          <div className="bg-white rounded-xl border border-gray-200 p-6 mb-8">
+          <div className="bg-card rounded-xl border p-6 mb-8">
             <h2 className="text-lg font-semibold mb-4">Performance Comparison</h2>
             <div className="h-96">
               <ResponsiveContainer width="100%" height="100%">
                 <LineChart data={compareData}>
-                  <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
+                  <CartesianGrid strokeDasharray="3 3" stroke="currentColor" opacity={0.1} />
                   <XAxis 
                     dataKey="date" 
                     tickFormatter={formatDate}
@@ -258,7 +260,7 @@ function CompareContent() {
                   <YAxis domain={[0, 5]} tick={{ fontSize: 12 }} />
                   <Tooltip 
                     labelFormatter={(value) => formatDate(value as string)}
-                    contentStyle={{ borderRadius: '8px', border: '1px solid #e5e7eb' }}
+                    contentStyle={{ borderRadius: '8px', border: '1px solid var(--border)', backgroundColor: 'var(--card)', color: 'var(--foreground)' }}
                   />
                   <Legend />
                   {selectedModels.map((model, index) => (
@@ -280,7 +282,7 @@ function CompareContent() {
 
         {/* Metrics Comparison */}
         {selectedModels.length > 0 && (
-          <div className="bg-white rounded-xl border border-gray-200 p-6">
+          <div className="bg-card rounded-xl border p-6">
             <h2 className="text-lg font-semibold mb-4">Current Metrics</h2>
             <div className="overflow-x-auto">
               <table className="w-full">
@@ -322,7 +324,7 @@ function CompareContent() {
                         <td className="p-3">
                           <div>
                             <p className="font-medium">{model.name}</p>
-                            <p className="text-sm text-gray-500">{model.provider}</p>
+                            <p className="text-sm text-muted-foreground">{model.provider}</p>
                           </div>
                         </td>
                         <td className="text-center p-3">
@@ -363,7 +365,7 @@ function CompareContent() {
         {/* Model Picker Modal */}
         {showModelPicker && (
           <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
-            <div className="bg-white rounded-xl p-6 max-w-2xl w-full max-h-[80vh] overflow-hidden">
+            <div className="bg-card rounded-xl p-6 max-w-2xl w-full max-h-[80vh] overflow-hidden">
               <div className="flex items-center justify-between mb-4">
                 <h3 className="text-lg font-semibold">Select a Model</h3>
                 <button
@@ -371,7 +373,7 @@ function CompareContent() {
                     setShowModelPicker(false);
                     setSearchQuery('');
                   }}
-                  className="p-2 hover:bg-gray-100 rounded-lg"
+                  className="p-2 hover:bg-accent rounded-lg"
                 >
                   <X className="w-5 h-5" />
                 </button>
@@ -381,7 +383,7 @@ function CompareContent() {
                 placeholder="Search models..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg mb-4"
+                className="w-full px-4 py-2 border rounded-lg mb-4 bg-background text-foreground"
                 autoFocus
               />
               <div className="overflow-y-auto max-h-[50vh]">
@@ -392,7 +394,7 @@ function CompareContent() {
                       onClick={() => addModel(model)}
                       disabled={selectedModels.find(m => m.id === model.id) !== undefined}
                       className={cn(
-                        "p-3 rounded-lg text-left hover:bg-gray-50 transition-colors",
+                        "p-3 rounded-lg text-left hover:bg-accent transition-colors",
                         selectedModels.find(m => m.id === model.id) 
                           ? "opacity-50 cursor-not-allowed" 
                           : ""
@@ -401,7 +403,7 @@ function CompareContent() {
                       <div className="flex items-center justify-between">
                         <div>
                           <p className="font-medium">{model.name}</p>
-                          <p className="text-sm text-gray-500">{model.provider}</p>
+                          <p className="text-sm text-muted-foreground">{model.provider}</p>
                         </div>
                         <span className="text-xl">
                           {getMoodEmoji(((model.current_performance || 0) + (model.current_intelligence || 0)) / 2)}
@@ -417,13 +419,13 @@ function CompareContent() {
 
         {/* Development Credit */}
         <div className="mt-12 text-center pb-8">
-          <p className="text-xs text-gray-400">
+          <p className="text-xs text-muted-foreground/60">
             Comparison tools by{' '}
             <a 
               href="https://fourtwenty.dev" 
               target="_blank" 
               rel="noopener noreferrer"
-              className="text-gray-500 hover:text-gray-700 transition-colors underline-offset-2 hover:underline"
+              className="text-muted-foreground hover:text-foreground transition-colors underline-offset-2 hover:underline"
             >
               FourTwenty Development
             </a>
@@ -436,7 +438,7 @@ function CompareContent() {
 
 export default function ComparePage() {
   return (
-    <Suspense fallback={<div className="min-h-screen bg-gray-50 flex items-center justify-center"><div className="text-gray-500">Loading...</div></div>}>
+    <Suspense fallback={<div className="min-h-screen bg-background flex items-center justify-center"><div className="text-muted-foreground">Loading...</div></div>}>
       <CompareContent />
     </Suspense>
   );

@@ -3,6 +3,7 @@ import { Inter } from "next/font/google";
 import "./globals.css";
 import { GoogleAnalytics } from "@/components/GoogleAnalytics";
 import { CookieConsent } from "@/components/CookieConsent";
+import { ThemeProvider } from "@/components/ThemeProvider";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -58,7 +59,7 @@ export default function RootLayout({
   const measurementId = process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID;
 
   return (
-    <html lang="en">
+    <html lang="en" suppressHydrationWarning>
       <head>
         <link rel="canonical" href="https://llmmood.com" />
         <link rel="icon" href="/logo.ico" />
@@ -69,29 +70,36 @@ export default function RootLayout({
         <meta name="theme-color" content="#3b82f6" />
       </head>
       <body className={`${inter.className} min-h-screen flex flex-col`}>
-        {children}
-        <footer className="mt-auto border-t border-gray-200 bg-gray-50">
-          <div className="max-w-7xl mx-auto px-4 py-6 sm:px-6 lg:px-8">
-            <div className="flex flex-col sm:flex-row justify-between items-center gap-4">
-              <p className="text-sm text-gray-500">
-                © 2024 LLM Mood Tracker. All rights reserved.
-              </p>
-              <p className="text-xs text-gray-400">
-                Crafted with ❤️ by{' '}
-                <a 
-                  href="https://fourtwenty.dev" 
-                  target="_blank" 
-                  rel="noopener noreferrer"
-                  className="hover:text-gray-600 transition-colors"
-                >
-                  FourTwenty Development
-                </a>
-              </p>
+        <ThemeProvider
+          attribute="class"
+          defaultTheme="dark"
+          enableSystem={false}
+          disableTransitionOnChange
+        >
+          {children}
+          <footer className="mt-auto border-t bg-secondary">
+            <div className="max-w-7xl mx-auto px-4 py-6 sm:px-6 lg:px-8">
+              <div className="flex flex-col sm:flex-row justify-between items-center gap-4">
+                <p className="text-sm text-muted-foreground">
+                  © 2024 LLM Mood Tracker. All rights reserved.
+                </p>
+                <p className="text-xs text-muted-foreground/80">
+                  Crafted with ❤️ by{' '}
+                  <a 
+                    href="https://fourtwenty.dev" 
+                    target="_blank" 
+                    rel="noopener noreferrer"
+                    className="hover:text-foreground transition-colors"
+                  >
+                    FourTwenty Development
+                  </a>
+                </p>
+              </div>
             </div>
-          </div>
-        </footer>
-        {measurementId && <GoogleAnalytics measurementId={measurementId} />}
-        <CookieConsent />
+          </footer>
+          {measurementId && <GoogleAnalytics measurementId={measurementId} />}
+          <CookieConsent />
+        </ThemeProvider>
       </body>
     </html>
   );

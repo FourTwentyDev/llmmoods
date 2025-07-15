@@ -16,6 +16,7 @@ import Image from 'next/image';
 import { getMoodEmoji, cn } from '@/lib/utils';
 import { StructuredData, websiteStructuredData, faqStructuredData } from '@/components/StructuredData';
 import { trackVote, trackSearch, trackFilter } from '@/lib/analytics';
+import { ThemeToggle } from '@/components/ThemeToggle';
 
 export default function HomePage() {
   const [models, setModels] = useState<Model[]>([]);
@@ -170,8 +171,8 @@ export default function HomePage() {
     <>
       <StructuredData type="WebSite" data={websiteStructuredData} />
       <StructuredData type="FAQPage" data={faqStructuredData} />
-      <main className="min-h-screen bg-gray-50">
-        <header className="bg-white border-b border-gray-200">
+      <main className="min-h-screen bg-background">
+        <header className="bg-card border-b">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
@@ -183,26 +184,26 @@ export default function HomePage() {
                 className="rounded-lg"
               />
               <div>
-                <h1 className="text-2xl font-bold text-gray-900">LLM Mood Tracker</h1>
-                <p className="text-sm text-gray-600">How&apos;s your AI feeling today?</p>
+                <h1 className="text-2xl font-bold text-foreground">LLM Mood Tracker</h1>
+                <p className="text-sm text-muted-foreground">How&apos;s your AI feeling today?</p>
               </div>
             </div>
             <div className="flex items-center gap-4">
               <Link
                 href="/compare"
-                className="flex items-center gap-2 text-gray-600 hover:text-gray-900"
+                className="flex items-center gap-2 text-muted-foreground hover:text-foreground"
               >
                 <GitCompare className="w-5 h-5" />
                 <span className="hidden sm:inline">Compare</span>
               </Link>
               <Link
                 href="/stats"
-                className="flex items-center gap-2 text-gray-600 hover:text-gray-900"
+                className="flex items-center gap-2 text-muted-foreground hover:text-foreground"
               >
                 <BarChart3 className="w-5 h-5" />
                 <span className="hidden sm:inline">Stats</span>
               </Link>
-              <Link href="/api-docs" className="flex items-center gap-2 text-gray-600 hover:text-gray-900">
+              <Link href="/api-docs" className="flex items-center gap-2 text-muted-foreground hover:text-foreground">
                 <Code2 className="w-5 h-5" />
                 <span className="hidden sm:inline">API</span>
               </Link>
@@ -210,11 +211,12 @@ export default function HomePage() {
                 href="https://github.com/FourTwentyDev/llmmoods"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="flex items-center gap-2 text-gray-600 hover:text-gray-900"
+                className="flex items-center gap-2 text-muted-foreground hover:text-foreground"
               >
                 <Github className="w-5 h-5" />
                 <span className="hidden sm:inline">GitHub</span>
               </a>
+              <ThemeToggle />
             </div>
           </div>
         </div>
@@ -274,14 +276,14 @@ export default function HomePage() {
         {/* Top Performers Carousel */}
         <section className="mb-12">
           <div className="flex items-center justify-between mb-6">
-            <h2 className="text-2xl font-bold text-gray-900 flex items-center gap-2">
+            <h2 className="text-2xl font-bold text-foreground flex items-center gap-2">
               <Award className="w-7 h-7 text-yellow-500" />
               Top Performers
             </h2>
           </div>
           <div className="grid gap-6 lg:grid-cols-3">
             {/* Today's Top */}
-            <div className="bg-white rounded-xl border border-gray-200 p-6 hover:shadow-lg transition-shadow">
+            <div className="bg-card rounded-xl border p-6 hover:shadow-lg transition-shadow">
               <div className="flex items-center gap-2 mb-4">
                 <Clock className="w-5 h-5 text-blue-500" />
                 <h3 className="font-semibold text-lg">Today</h3>
@@ -291,18 +293,18 @@ export default function HomePage() {
                   <Link
                     key={model.id}
                     href={`/stats/${encodeURIComponent(model.id)}`}
-                    className="flex items-center justify-between p-3 rounded-lg hover:bg-gray-50 transition-colors"
+                    className="flex items-center justify-between p-3 rounded-lg hover:bg-accent transition-colors"
                   >
                     <div className="flex items-center gap-3">
                       <span className={cn(
                         "text-lg font-bold",
-                        index === 0 ? "text-yellow-500" : index === 1 ? "text-gray-400" : "text-amber-600"
+                        index === 0 ? "text-yellow-500" : index === 1 ? "text-muted-foreground" : "text-amber-600"
                       )}>
                         #{index + 1}
                       </span>
                       <div>
                         <p className="font-medium line-clamp-1">{model.name}</p>
-                        <p className="text-sm text-gray-500">{model.avg_performance?.toFixed(2) || 0}/5.00</p>
+                        <p className="text-sm text-muted-foreground">{model.avg_performance?.toFixed(2) || 0}/5.00</p>
                       </div>
                     </div>
                     <span className="text-xl">
@@ -321,7 +323,7 @@ export default function HomePage() {
             </div>
 
             {/* This Week's Top */}
-            <div className="bg-white rounded-xl border border-gray-200 p-6 hover:shadow-lg transition-shadow">
+            <div className="bg-card rounded-xl border p-6 hover:shadow-lg transition-shadow">
               <div className="flex items-center gap-2 mb-4">
                 <TrendingUp className="w-5 h-5 text-green-500" />
                 <h3 className="font-semibold text-lg">This Week</h3>
@@ -331,18 +333,18 @@ export default function HomePage() {
                   <Link
                     key={model.id}
                     href={`/stats/${encodeURIComponent(model.id)}`}
-                    className="flex items-center justify-between p-3 rounded-lg hover:bg-gray-50 transition-colors"
+                    className="flex items-center justify-between p-3 rounded-lg hover:bg-accent transition-colors"
                   >
                     <div className="flex items-center gap-3">
                       <span className={cn(
                         "text-lg font-bold",
-                        index === 0 ? "text-yellow-500" : index === 1 ? "text-gray-400" : "text-amber-600"
+                        index === 0 ? "text-yellow-500" : index === 1 ? "text-muted-foreground" : "text-amber-600"
                       )}>
                         #{index + 1}
                       </span>
                       <div>
                         <p className="font-medium line-clamp-1">{model.name}</p>
-                        <p className="text-sm text-gray-500">{model.avg_performance?.toFixed(2) || 0}/5.00</p>
+                        <p className="text-sm text-muted-foreground">{model.avg_performance?.toFixed(2) || 0}/5.00</p>
                       </div>
                     </div>
                     <span className="text-xl">
@@ -361,7 +363,7 @@ export default function HomePage() {
             </div>
 
             {/* This Month's Top */}
-            <div className="bg-white rounded-xl border border-gray-200 p-6 hover:shadow-lg transition-shadow">
+            <div className="bg-card rounded-xl border p-6 hover:shadow-lg transition-shadow">
               <div className="flex items-center gap-2 mb-4">
                 <Sparkles className="w-5 h-5 text-purple-500" />
                 <h3 className="font-semibold text-lg">This Month</h3>
@@ -371,18 +373,18 @@ export default function HomePage() {
                   <Link
                     key={model.id}
                     href={`/stats/${encodeURIComponent(model.id)}`}
-                    className="flex items-center justify-between p-3 rounded-lg hover:bg-gray-50 transition-colors"
+                    className="flex items-center justify-between p-3 rounded-lg hover:bg-accent transition-colors"
                   >
                     <div className="flex items-center gap-3">
                       <span className={cn(
                         "text-lg font-bold",
-                        index === 0 ? "text-yellow-500" : index === 1 ? "text-gray-400" : "text-amber-600"
+                        index === 0 ? "text-yellow-500" : index === 1 ? "text-muted-foreground" : "text-amber-600"
                       )}>
                         #{index + 1}
                       </span>
                       <div>
                         <p className="font-medium line-clamp-1">{model.name}</p>
-                        <p className="text-sm text-gray-500">{model.avg_performance?.toFixed(2) || 0}/5.00</p>
+                        <p className="text-sm text-muted-foreground">{model.avg_performance?.toFixed(2) || 0}/5.00</p>
                       </div>
                     </div>
                     <span className="text-xl">
@@ -404,17 +406,17 @@ export default function HomePage() {
 
         {/* Search and Filter Section */}
         <div className="mb-8">
-          <div className="bg-white rounded-xl border border-gray-200 p-6">
+          <div className="bg-card rounded-xl border p-6">
             {/* Search Bar */}
             <div className="mb-4">
               <div className="relative">
-                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
+                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground w-5 h-5" />
                 <input
                   type="text"
                   placeholder="Search models by name or provider..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  className="w-full pl-10 pr-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent bg-background text-foreground"
                 />
               </div>
             </div>
@@ -423,7 +425,7 @@ export default function HomePage() {
             <div className="flex flex-col sm:flex-row gap-4">
               {/* Category Filter */}
               <div className="flex-1">
-                <label className="block text-sm font-medium text-gray-700 mb-2">Category</label>
+                <label className="block text-sm font-medium text-foreground mb-2">Category</label>
                 <div className="flex items-center gap-2">
                   {(['all', 'llm', 'image', 'code'] as const).map((category) => (
                     <button
@@ -436,8 +438,8 @@ export default function HomePage() {
                       className={cn(
                         "px-4 py-2 rounded-lg font-medium transition-all",
                         filter === category
-                          ? "bg-blue-500 text-white shadow-md"
-                          : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+                          ? "bg-primary text-primary-foreground shadow-md"
+                          : "bg-secondary text-secondary-foreground hover:bg-secondary/80"
                       )}
                     >
                       {category === 'all' ? 'All' : category.toUpperCase()}
@@ -448,7 +450,7 @@ export default function HomePage() {
               
               {/* Vendor Filter */}
               <div className="sm:w-64">
-                <label className="block text-sm font-medium text-gray-700 mb-2">Provider</label>
+                <label className="block text-sm font-medium text-foreground mb-2">Provider</label>
                 <select
                   value={selectedVendor}
                   onChange={(e) => {
@@ -456,7 +458,7 @@ export default function HomePage() {
                     setCurrentPage(1);
                     trackFilter('vendor', e.target.value);
                   }}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent bg-background text-foreground"
                 >
                   <option value="all">All Providers</option>
                   {uniqueVendors.map(vendor => (
@@ -470,7 +472,7 @@ export default function HomePage() {
             
             {/* Results Count */}
             {debouncedSearch && (
-              <div className="mt-4 text-sm text-gray-600">
+              <div className="mt-4 text-sm text-muted-foreground">
                 Found {filteredModels.length} models matching &quot;{debouncedSearch}&quot;
               </div>
             )}
@@ -479,13 +481,13 @@ export default function HomePage() {
 
         {loading ? (
           <div className="flex items-center justify-center h-64">
-            <div className="text-gray-500">Loading models...</div>
+            <div className="text-muted-foreground">Loading models...</div>
           </div>
         ) : (
           <>
             {popularModels.length > 0 && (
               <section className="mb-12">
-                <h2 className="text-xl font-semibold mb-4 text-gray-900">
+                <h2 className="text-xl font-semibold mb-4 text-foreground">
                   Trending Today
                 </h2>
                 <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
@@ -503,7 +505,7 @@ export default function HomePage() {
 
             {otherModels.length > 0 && (
               <section>
-                <h2 className="text-xl font-semibold mb-4 text-gray-900">
+                <h2 className="text-xl font-semibold mb-4 text-foreground">
                   All Models
                 </h2>
                 <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
@@ -528,8 +530,8 @@ export default function HomePage() {
                   className={cn(
                     "p-2 rounded-lg transition-colors",
                     currentPage === 1
-                      ? "text-gray-400 cursor-not-allowed"
-                      : "text-gray-700 hover:bg-gray-100"
+                      ? "text-muted-foreground/50 cursor-not-allowed"
+                      : "text-muted-foreground hover:bg-accent"
                   )}
                 >
                   <ChevronLeft className="w-5 h-5" />
@@ -551,8 +553,8 @@ export default function HomePage() {
                           className={cn(
                             "px-3 py-1 rounded-lg transition-colors",
                             page === currentPage
-                              ? "bg-blue-500 text-white"
-                              : "text-gray-700 hover:bg-gray-100"
+                              ? "bg-primary text-primary-foreground"
+                              : "text-muted-foreground hover:bg-accent"
                           )}
                         >
                           {page}
@@ -562,7 +564,7 @@ export default function HomePage() {
                       page === currentPage - 2 ||
                       page === currentPage + 2
                     ) {
-                      return <span key={page} className="px-1 text-gray-400">...</span>;
+                      return <span key={page} className="px-1 text-muted-foreground">...</span>;
                     }
                     return null;
                   })}
@@ -574,8 +576,8 @@ export default function HomePage() {
                   className={cn(
                     "p-2 rounded-lg transition-colors",
                     currentPage === totalPages
-                      ? "text-gray-400 cursor-not-allowed"
-                      : "text-gray-700 hover:bg-gray-100"
+                      ? "text-muted-foreground/50 cursor-not-allowed"
+                      : "text-muted-foreground hover:bg-accent"
                   )}
                 >
                   <ChevronRight className="w-5 h-5" />
@@ -587,13 +589,13 @@ export default function HomePage() {
 
         {/* Development Credit */}
         <div className="mt-16 text-center">
-          <p className="text-xs text-gray-400">
+          <p className="text-xs text-muted-foreground/60">
             Developed by{' '}
             <a 
               href="https://fourtwenty.dev" 
               target="_blank" 
               rel="noopener noreferrer"
-              className="text-gray-500 hover:text-gray-700 transition-colors underline-offset-2 hover:underline"
+              className="text-muted-foreground hover:text-foreground transition-colors underline-offset-2 hover:underline"
             >
               FourTwenty Development
             </a>
