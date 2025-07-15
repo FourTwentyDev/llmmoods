@@ -6,6 +6,8 @@ export async function GET() {
   try {
     // These are the top models that drive the most traffic
     const topModelIds = [
+      'openai/chatgpt-4o-latest',
+      'openai/gpt-4.1',
       'anthropic/claude-opus-4',
       'anthropic/claude-sonnet-4',
       'x-ai/grok-4',

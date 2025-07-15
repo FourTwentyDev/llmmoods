@@ -227,7 +227,7 @@ export default function HomePage() {
                 </div>
               </div>
             </div>
-            <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
+            <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
               {topModels.map((model) => {
                 const overallScore = ((model.current_performance || 0) + (model.current_intelligence || 0)) / 2 || 0;
                 return (
