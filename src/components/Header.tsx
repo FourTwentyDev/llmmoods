@@ -45,13 +45,15 @@ export default function Header({
               </Link>
             )}
             
-            <Image 
-              src="/logo.webp" 
-              alt="LLM Mood Tracker Logo" 
-              width={64} 
-              height={64} 
-              className="rounded-lg"
-            />
+            <Link href="/" className="block">
+              <Image 
+                src="/logo.webp" 
+                alt="LLM Mood Tracker Logo" 
+                width={64} 
+                height={64} 
+                className="rounded-lg hover:opacity-80 transition-opacity cursor-pointer"
+              />
+            </Link>
             <div>
               <h1 className="text-2xl font-bold text-foreground">
                 {title || 'LLM Mood Tracker'}
