@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import { ModelCard } from '@/components/ModelCard';
 import { VoteModal } from '@/components/VoteModal';
 import { Model, Vote } from '@/types';
+import { useToast } from '@/components/Toast';
 
 interface ModelWithStats extends Model {
   avg_performance?: number;
@@ -18,6 +19,7 @@ import { trackVote, trackSearch, trackFilter } from '@/lib/analytics';
 import Header from '@/components/Header';
 
 export default function HomePage() {
+  const { showToast } = useToast();
   const [models, setModels] = useState<Model[]>([]);
   const [topModels, setTopModels] = useState<Model[]>([]);
   const [selectedModel, setSelectedModel] = useState<Model | null>(null);
@@ -141,6 +143,8 @@ export default function HomePage() {
         body: JSON.stringify(vote),
       });
 
+      const data = await res.json();
+
       if (res.ok) {
         // Mark model as voted
         const newVoted = new Set(votedModels).add(vote.modelId);
@@ -154,13 +158,42 @@ export default function HomePage() {
         
         // Track vote with Google Analytics
         trackVote(vote.modelId, ((vote.ratings.performance || 0) + (vote.ratings.intelligence || 0)) / 2);
+        
+        // Show success toast
+        showToast({
+          type: 'success',
+          title: 'Vote recorded!',
+          description: data.remaining ? `You have ${data.remaining} votes remaining today.` : 'Thank you for your feedback!',
+        });
       } else {
-        const error = await res.json();
-        alert(error.error || 'Failed to submit vote');
+        // Show error toast based on status code
+        if (res.status === 429) {
+          showToast({
+            type: 'error',
+            title: 'Rate limit reached',
+            description: data.error || 'You can only vote once per day per model.',
+          });
+        } else if (res.status === 404) {
+          showToast({
+            type: 'error',
+            title: 'Model not found',
+            description: 'This model may have been removed. Please refresh the page.',
+          });
+        } else {
+          showToast({
+            type: 'error',
+            title: 'Vote failed',
+            description: data.error || 'Failed to submit vote. Please try again.',
+          });
+        }
       }
     } catch (error) {
       console.error('Failed to submit vote:', error);
-      alert('Failed to submit vote. Please try again.');
+      showToast({
+        type: 'error',
+        title: 'Connection error',
+        description: 'Failed to connect to the server. Please check your internet connection.',
+      });
     }
   };
 

@@ -11,6 +11,7 @@ import Header from '@/components/Header';
 import { VoteModal } from '@/components/VoteModal';
 import { Vote } from '@/types';
 import { trackVote } from '@/lib/analytics';
+import { useToast } from '@/components/Toast';
 
 interface StatsData {
   date: string;
@@ -22,6 +23,7 @@ interface StatsData {
 }
 
 export function StatsPageClient() {
+  const { showToast } = useToast();
   const params = useParams();
   const modelId = decodeURIComponent(params.modelId as string);
   const [model, setModel] = useState<Model | null>(null);
@@ -105,6 +107,8 @@ export function StatsPageClient() {
         body: JSON.stringify(vote),
       });
 
+      const data = await res.json();
+
       if (res.ok) {
         // Mark model as voted
         setHasVoted(true);
@@ -120,13 +124,42 @@ export function StatsPageClient() {
         
         // Track vote with Google Analytics
         trackVote(vote.modelId, ((vote.ratings.performance || 0) + (vote.ratings.intelligence || 0)) / 2);
+        
+        // Show success toast
+        showToast({
+          type: 'success',
+          title: 'Vote recorded!',
+          description: data.remaining ? `You have ${data.remaining} votes remaining today.` : 'Thank you for your feedback!',
+        });
       } else {
-        const error = await res.json();
-        alert(error.error || 'Failed to submit vote');
+        // Show error toast based on status code
+        if (res.status === 429) {
+          showToast({
+            type: 'error',
+            title: 'Rate limit reached',
+            description: data.error || 'You can only vote once per day per model.',
+          });
+        } else if (res.status === 404) {
+          showToast({
+            type: 'error',
+            title: 'Model not found',
+            description: 'This model may have been removed. Please refresh the page.',
+          });
+        } else {
+          showToast({
+            type: 'error',
+            title: 'Vote failed',
+            description: data.error || 'Failed to submit vote. Please try again.',
+          });
+        }
       }
     } catch (error) {
       console.error('Failed to submit vote:', error);
-      alert('Failed to submit vote. Please try again.');
+      showToast({
+        type: 'error',
+        title: 'Connection error',
+        description: 'Failed to connect to the server. Please check your internet connection.',
+      });
     }
   };
 

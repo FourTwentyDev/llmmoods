@@ -31,13 +31,27 @@ export async function checkRateLimit(
   );
   
   if (!existingLimit) {
-    // First action in window
+    // First action in window or expired record
     await query(
       `INSERT INTO rate_limits (fingerprint_hash, action_type, model_id, count, window_start) 
-       VALUES (?, ?, ?, 1, NOW())`,
+       VALUES (?, ?, ?, 1, NOW())
+       ON DUPLICATE KEY UPDATE 
+         count = IF(window_start > DATE_SUB(NOW(), INTERVAL ? SECOND), count + 1, 1),
+         window_start = IF(window_start > DATE_SUB(NOW(), INTERVAL ? SECOND), window_start, NOW())`,
+      [fingerprintHash, action, effectiveModelId, windowSeconds, windowSeconds]
+    );
+    
+    // Re-check to get the actual count after insert/update
+    const updatedLimit = await queryOne<RateLimit>(
+      `SELECT * FROM rate_limits WHERE fingerprint_hash = ? AND action_type = ? AND model_id = ?`,
       [fingerprintHash, action, effectiveModelId]
     );
-    return { allowed: true, remaining: maxRequests - 1 };
+    
+    if (updatedLimit && updatedLimit.count > maxRequests) {
+      return { allowed: false, remaining: 0 };
+    }
+    
+    return { allowed: true, remaining: maxRequests - (updatedLimit?.count || 1) };
   }
   
   if (existingLimit.count >= maxRequests) {

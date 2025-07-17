@@ -4,6 +4,7 @@ import "./globals.css";
 import { GoogleAnalytics } from "@/components/GoogleAnalytics";
 import { CookieConsent } from "@/components/CookieConsent";
 import { ThemeProvider } from "@/components/ThemeProvider";
+import { ToastProvider } from "@/components/Toast";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -76,7 +77,8 @@ export default function RootLayout({
           enableSystem={false}
           disableTransitionOnChange
         >
-          {children}
+          <ToastProvider>
+            {children}
           <footer className="mt-auto border-t bg-secondary">
             <div className="max-w-7xl mx-auto px-4 py-6 sm:px-6 lg:px-8">
               <div className="flex flex-col sm:flex-row justify-between items-center gap-4">
@@ -99,6 +101,7 @@ export default function RootLayout({
           </footer>
           {measurementId && <GoogleAnalytics measurementId={measurementId} />}
           <CookieConsent />
+          </ToastProvider>
         </ThemeProvider>
       </body>
     </html>

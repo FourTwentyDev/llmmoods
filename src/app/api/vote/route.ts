@@ -28,6 +28,19 @@ export async function POST(req: NextRequest) {
       );
     }
     
+    // Check if model exists
+    const modelCheck = await query(
+      'SELECT id FROM models WHERE id = ? AND is_active = TRUE',
+      [modelId]
+    );
+    
+    if (!Array.isArray(modelCheck) || modelCheck.length === 0) {
+      return NextResponse.json(
+        { error: 'Model not found. Please refresh the page and try again.' },
+        { status: 404 }
+      );
+    }
+    
     // Check rate limit per model
     const { allowed, remaining } = await checkRateLimit(fingerprintHash, 'vote', modelId);
     
@@ -88,10 +101,19 @@ export async function POST(req: NextRequest) {
       remaining,
       message: 'Vote recorded successfully!' 
     });
-  } catch {
-    // Error recording vote - consider logging to monitoring service
+  } catch (error) {
+    console.error('Error recording vote:', error);
+    
+    // Check if it's a foreign key constraint error (model doesn't exist)
+    if (error instanceof Error && error.message.includes('foreign key constraint')) {
+      return NextResponse.json(
+        { error: 'Model not found. Please refresh the page and try again.' },
+        { status: 400 }
+      );
+    }
+    
     return NextResponse.json(
-      { error: 'Failed to record vote' },
+      { error: 'Failed to record vote. Please try again later.' },
       { status: 500 }
     );
   }
