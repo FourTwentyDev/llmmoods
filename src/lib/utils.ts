@@ -50,3 +50,19 @@ export function getIntelligenceLabel(score: number): string {
   if (score >= 1.5) return 'Confused';
   return 'Brain Fog';
 }
+
+export function parseIntSafe(value: string | null, defaultValue: number, min?: number, max?: number): number {
+  if (!value) return defaultValue;
+  
+  const parsed = parseInt(value, 10);
+  if (isNaN(parsed)) return defaultValue;
+  
+  if (min !== undefined && parsed < min) return defaultValue;
+  if (max !== undefined && parsed > max) return defaultValue;
+  
+  return parsed;
+}
+
+export function isValidEnum<T extends string>(value: any, enumValues: readonly T[]): value is T {
+  return enumValues.includes(value);
+}

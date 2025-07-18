@@ -21,11 +21,32 @@ export async function POST(req: NextRequest) {
     const { modelId, ratings, issueType } = body;
     
     // Validate inputs early
-    if (!modelId || !ratings || Object.keys(ratings).length === 0) {
-      return NextResponse.json(
-        { error: 'Invalid vote data' },
-        { status: 400 }
-      );
+    if (!modelId || typeof modelId !== 'string' || modelId.length > 100) {
+      return commonErrors.badRequest('Invalid model ID');
+    }
+    
+    if (!ratings || typeof ratings !== 'object' || Object.keys(ratings).length === 0) {
+      return commonErrors.badRequest('Invalid vote data - ratings required');
+    }
+    
+    // Validate rating values
+    if (ratings.performance && (ratings.performance < 1 || ratings.performance > 4)) {
+      return commonErrors.validationError('Performance rating must be between 1 and 4');
+    }
+    if (ratings.speed && (ratings.speed < 1 || ratings.speed > 5)) {
+      return commonErrors.validationError('Speed rating must be between 1 and 5');
+    }
+    if (ratings.intelligence && (ratings.intelligence < 1 || ratings.intelligence > 5)) {
+      return commonErrors.validationError('Intelligence rating must be between 1 and 5');
+    }
+    if (ratings.reliability && (ratings.reliability < 1 || ratings.reliability > 4)) {
+      return commonErrors.validationError('Reliability rating must be between 1 and 4');
+    }
+    
+    // Validate issueType if provided
+    const validIssueTypes = ['hallucination', 'refused', 'off-topic', 'slow', 'error', 'other'];
+    if (issueType && !validIssueTypes.includes(issueType)) {
+      return commonErrors.validationError('Invalid issue type');
     }
     
     // Check if model exists
@@ -73,17 +94,17 @@ export async function POST(req: NextRequest) {
       ]
     );
     
-    // Update daily stats
+    // Update daily stats with COALESCE to handle NULL values
     await query(
       `INSERT INTO daily_stats (model_id, stat_date, total_votes, avg_performance, avg_speed, avg_intelligence, avg_reliability)
        SELECT 
          model_id,
          vote_date,
          COUNT(*) as total_votes,
-         AVG(performance) as avg_performance,
-         AVG(speed) as avg_speed,
-         AVG(intelligence) as avg_intelligence,
-         AVG(reliability) as avg_reliability
+         COALESCE(AVG(performance), 0) as avg_performance,
+         COALESCE(AVG(speed), 0) as avg_speed,
+         COALESCE(AVG(intelligence), 0) as avg_intelligence,
+         COALESCE(AVG(reliability), 0) as avg_reliability
        FROM votes
        WHERE model_id = ? AND vote_date = CURDATE()
        GROUP BY model_id, vote_date
@@ -96,11 +117,10 @@ export async function POST(req: NextRequest) {
       [modelId]
     );
     
-    return NextResponse.json({ 
-      success: true, 
-      remaining,
-      message: 'Vote recorded successfully!' 
-    });
+    return apiSuccess(
+      { remaining },
+      'Vote recorded successfully!'
+    );
   } catch (error) {
     console.error('Error recording vote:', error);
     
@@ -112,9 +132,6 @@ export async function POST(req: NextRequest) {
       );
     }
     
-    return NextResponse.json(
-      { error: 'Failed to record vote. Please try again later.' },
-      { status: 500 }
-    );
+    return commonErrors.serverError('Failed to record vote. Please try again later.');
   }
 }

@@ -6,7 +6,8 @@
       "Bash(ls:*)",
       "Bash(test:*)",
       "Bash(npx tsc:*)",
-      "Bash(npm run lint)"
+      "Bash(npm run lint)",
+      "WebFetch(domain:www.reddit.com)"
     ],
     "deny": []
   }

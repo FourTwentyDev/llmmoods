@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { query } from '@/lib/db';
 import { Model } from '@/lib/models';
+import { commonErrors } from '@/lib/api-response';
 
 export async function GET(request: Request) {
   try {
@@ -65,15 +66,14 @@ export async function GET(request: Request) {
         [...subqueryParams, ...params]
       );
     } else {
-      // Determine sort order
-      let orderBy = 'm.provider, m.name'; // default
-      if (sort === 'newest') {
-        orderBy = 'm.openrouter_created_at DESC';
-      } else if (sort === 'oldest') {
-        orderBy = 'm.openrouter_created_at ASC';
-      } else if (sort === 'context') {
-        orderBy = 'm.context_length DESC';
-      }
+      // Determine sort order with whitelist to prevent SQL injection
+      const sortOptions: Record<string, string> = {
+        'default': 'm.provider, m.name',
+        'newest': 'm.openrouter_created_at DESC',
+        'oldest': 'm.openrouter_created_at ASC',
+        'context': 'm.context_length DESC'
+      };
+      const orderBy = sortOptions[sort] || sortOptions['default'];
       
       // Get all models with filters
       models = await query<Model>(
@@ -92,9 +92,6 @@ export async function GET(request: Request) {
     return NextResponse.json({ models });
   } catch (error) {
     console.error('Error fetching models:', error);
-    return NextResponse.json(
-      { error: 'Failed to fetch models' },
-      { status: 500 }
-    );
+    return commonErrors.serverError('Failed to fetch models');
   }
 }

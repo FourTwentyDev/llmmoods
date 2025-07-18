@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { query } from '@/lib/db';
 import { Model } from '@/lib/models';
+import { commonErrors } from '@/lib/api-response';
 
 export async function GET() {
   try {
@@ -30,12 +31,12 @@ export async function GET() {
       [...topModelIds, ...topModelIds] // Pass IDs twice: once for IN clause, once for FIELD ordering
     );
     
-    return NextResponse.json({ models });
+    // Filter out any null results in case some models don't exist
+    const validModels = Array.isArray(models) ? models.filter(m => m !== null) : [];
+    
+    return NextResponse.json({ models: validModels });
   } catch (error) {
     console.error('Error fetching top models:', error);
-    return NextResponse.json(
-      { error: 'Failed to fetch top models' },
-      { status: 500 }
-    );
+    return commonErrors.serverError('Failed to fetch top models');
   }
 }

@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { queryOne } from '@/lib/db';
 import { Model } from '@/types';
+import { commonErrors } from '@/lib/api-response';
 
 export async function GET(
   request: Request,
@@ -8,6 +9,11 @@ export async function GET(
 ) {
   try {
     const { modelId } = await params;
+    
+    if (!modelId) {
+      return commonErrors.badRequest('Model ID is required');
+    }
+    
     const decodedModelId = decodeURIComponent(modelId);
     
     const model = await queryOne<Model>(`
@@ -25,12 +31,12 @@ export async function GET(
     `, [decodedModelId]);
     
     if (!model) {
-      return NextResponse.json({ error: 'Model not found' }, { status: 404 });
+      return commonErrors.notFound('Model not found');
     }
     
     return NextResponse.json(model);
   } catch (error) {
     console.error('Error fetching model:', error);
-    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+    return commonErrors.serverError('Failed to fetch model details');
   }
 }

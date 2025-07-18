@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { query } from '@/lib/db';
 import { z } from 'zod';
+import { commonErrors } from '@/lib/api-response';
 
 interface Comment {
   id: number;
@@ -27,10 +28,7 @@ export async function GET(
     const validation = modelIdSchema.safeParse(modelId);
     
     if (!validation.success) {
-      return NextResponse.json(
-        { error: 'Invalid model ID' },
-        { status: 400 }
-      );
+      return commonErrors.badRequest('Invalid model ID');
     }
 
     const validatedModelId = validation.data;
@@ -51,6 +49,13 @@ export async function GET(
     );
 
     // Formatiere Timestamps
+    if (!Array.isArray(comments)) {
+      return NextResponse.json({
+        comments: [],
+        count: 0
+      });
+    }
+    
     const formattedComments = (comments as Comment[]).map(comment => ({
       id: comment.id,
       text: comment.comment_text,
@@ -66,10 +71,7 @@ export async function GET(
 
   } catch (error) {
     console.error('Error fetching comments:', error);
-    return NextResponse.json(
-      { error: 'Internal server error' },
-      { status: 500 }
-    );
+    return commonErrors.serverError('Failed to fetch comments');
   }
 }
 

@@ -22,50 +22,40 @@ export async function checkRateLimit(
   // For votes, check per model. For comments, check globally
   const effectiveModelId = action === 'vote' && modelId ? modelId : '__GLOBAL__';
   
-  const whereClause = 'WHERE fingerprint_hash = ? AND action_type = ? AND model_id = ? AND window_start > DATE_SUB(NOW(), INTERVAL ? SECOND)';
-  const params = [fingerprintHash, action, effectiveModelId, windowSeconds];
-  
-  const existingLimit = await queryOne<RateLimit>(
-    `SELECT * FROM rate_limits ${whereClause}`,
-    params
+  // Atomic increment with conditional logic to prevent race conditions
+  const result = await query<any>(
+    `INSERT INTO rate_limits (fingerprint_hash, action_type, model_id, count, window_start)
+     VALUES (?, ?, ?, 1, NOW())
+     ON DUPLICATE KEY UPDATE
+       count = CASE
+         WHEN window_start <= DATE_SUB(NOW(), INTERVAL ? SECOND) THEN 1
+         WHEN count < ? THEN count + 1
+         ELSE count
+       END,
+       window_start = CASE
+         WHEN window_start <= DATE_SUB(NOW(), INTERVAL ? SECOND) THEN NOW()
+         ELSE window_start
+       END`,
+    [fingerprintHash, action, effectiveModelId, windowSeconds, maxRequests, windowSeconds]
   );
   
-  if (!existingLimit) {
-    // First action in window or expired record
-    await query(
-      `INSERT INTO rate_limits (fingerprint_hash, action_type, model_id, count, window_start) 
-       VALUES (?, ?, ?, 1, NOW())
-       ON DUPLICATE KEY UPDATE 
-         count = IF(window_start > DATE_SUB(NOW(), INTERVAL ? SECOND), count + 1, 1),
-         window_start = IF(window_start > DATE_SUB(NOW(), INTERVAL ? SECOND), window_start, NOW())`,
-      [fingerprintHash, action, effectiveModelId, windowSeconds, windowSeconds]
-    );
-    
-    // Re-check to get the actual count after insert/update
-    const updatedLimit = await queryOne<RateLimit>(
-      `SELECT * FROM rate_limits WHERE fingerprint_hash = ? AND action_type = ? AND model_id = ?`,
-      [fingerprintHash, action, effectiveModelId]
-    );
-    
-    if (updatedLimit && updatedLimit.count > maxRequests) {
-      return { allowed: false, remaining: 0 };
-    }
-    
-    return { allowed: true, remaining: maxRequests - (updatedLimit?.count || 1) };
-  }
-  
-  if (existingLimit.count >= maxRequests) {
-    return { allowed: false, remaining: 0 };
-  }
-  
-  // Increment counter
-  await query(
-    `UPDATE rate_limits SET count = count + 1 
-     WHERE fingerprint_hash = ? AND action_type = ? AND model_id = ?`,
-    [fingerprintHash, action, effectiveModelId]
+  // Get the current state after atomic update
+  const currentLimit = await queryOne<RateLimit>(
+    `SELECT * FROM rate_limits 
+     WHERE fingerprint_hash = ? AND action_type = ? AND model_id = ?
+     AND window_start > DATE_SUB(NOW(), INTERVAL ? SECOND)`,
+    [fingerprintHash, action, effectiveModelId, windowSeconds]
   );
   
-  return { allowed: true, remaining: maxRequests - existingLimit.count - 1 };
+  if (!currentLimit) {
+    // Window expired between operations (rare edge case)
+    return { allowed: true, remaining: maxRequests - 1 };
+  }
+  
+  const allowed = currentLimit.count <= maxRequests;
+  const remaining = Math.max(0, maxRequests - currentLimit.count);
+  
+  return { allowed, remaining };
 }
 
 export async function cleanupRateLimits(): Promise<void> {

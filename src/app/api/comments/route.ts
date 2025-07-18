@@ -3,6 +3,7 @@ import { checkRateLimit } from '@/lib/rate-limit';
 import { generateFingerprint } from '@/lib/fingerprint';
 import { query } from '@/lib/db';
 import { z } from 'zod';
+import { apiSuccess, commonErrors } from '@/lib/api-response';
 
 // Validation schema für eingehende Kommentare
 const commentSchema = z.object({
@@ -17,10 +18,7 @@ export async function POST(req: NextRequest) {
     const { allowed } = await checkRateLimit(fingerprint, 'comment');
     
     if (!allowed) {
-      return NextResponse.json(
-        { error: 'Comment limit reached (max 3 per day)' },
-        { status: 429 }
-      );
+      return commonErrors.rateLimit('Comment limit reached (max 3 per day)');
     }
 
     // Parse und validiere Request body
@@ -28,25 +26,19 @@ export async function POST(req: NextRequest) {
     const validation = commentSchema.safeParse(body);
     
     if (!validation.success) {
-      return NextResponse.json(
-        { error: 'Invalid input', details: validation.error.issues },
-        { status: 400 }
-      );
+      return commonErrors.validationError('Invalid input', validation.error.issues);
     }
 
     const { model_id, comment_text } = validation.data;
 
     // Prüfe ob Model existiert
-    const modelCheck = await query(
+    const modelCheck = await query<{ id: string }>(
       'SELECT id FROM models WHERE id = ?',
       [model_id]
     );
 
-    if (modelCheck.length === 0) {
-      return NextResponse.json(
-        { error: 'Model not found' },
-        { status: 404 }
-      );
+    if (!Array.isArray(modelCheck) || modelCheck.length === 0) {
+      return commonErrors.notFound('Model not found');
     }
 
     // Speichere Kommentar mit automatischer Approval (vorerst)
@@ -57,20 +49,14 @@ export async function POST(req: NextRequest) {
       [model_id, fingerprint, comment_text, true] // is_approved = true für jetzt
     );
 
-    return NextResponse.json(
-      { 
-        success: true,
-        message: 'Comment posted successfully',
-        id: 'new' // MySQL doesn't return insertId for execute
-      },
-      { status: 201 }
+    return apiSuccess(
+      { id: 'new' },
+      'Comment posted successfully',
+      201
     );
 
   } catch (error) {
     console.error('Error saving comment:', error);
-    return NextResponse.json(
-      { error: 'Internal server error' },
-      { status: 500 }
-    );
+    return commonErrors.serverError('Failed to save comment');
   }
 }

@@ -1,6 +1,8 @@
 import { NextResponse } from 'next/server';
 import { query } from '@/lib/db';
 import { RowDataPacket } from 'mysql2';
+import { parseIntSafe } from '@/lib/utils';
+import { commonErrors } from '@/lib/api-response';
 
 interface StatsRow extends RowDataPacket {
   id: string;
@@ -71,7 +73,7 @@ interface TrendsRow extends RowDataPacket {
 
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
-  const period = parseInt(searchParams.get('period') || '30');
+  const period = parseIntSafe(searchParams.get('period'), 30, 1, 365);
 
   try {
     // Get date range
@@ -304,9 +306,6 @@ export async function GET(request: Request) {
     return NextResponse.json(response);
   } catch (error) {
     console.error('Failed to fetch overall stats:', error);
-    return NextResponse.json(
-      { error: 'Failed to fetch statistics' },
-      { status: 500 }
-    );
+    return commonErrors.serverError('Failed to fetch statistics');
   }
 }
