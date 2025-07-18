@@ -2,10 +2,10 @@ import { NextResponse } from 'next/server';
 
 interface ErrorResponse {
   error: string;
-  details?: any;
+  details?: unknown;
 }
 
-interface SuccessResponse<T = any> {
+interface SuccessResponse<T = unknown> {
   success: true;
   data?: T;
   message?: string;
@@ -14,7 +14,7 @@ interface SuccessResponse<T = any> {
 export function apiError(
   message: string, 
   status: number = 500, 
-  details?: any
+  details?: unknown
 ): NextResponse<ErrorResponse> {
   const body: ErrorResponse = { error: message };
   if (details) {
@@ -23,7 +23,7 @@ export function apiError(
   return NextResponse.json(body, { status });
 }
 
-export function apiSuccess<T = any>(
+export function apiSuccess<T = unknown>(
   data?: T,
   message?: string,
   status: number = 200
@@ -40,7 +40,7 @@ export function apiSuccess<T = any>(
 
 // Common error responses
 export const commonErrors = {
-  badRequest: (message = 'Bad request', details?: any) => 
+  badRequest: (message = 'Bad request', details?: unknown) => 
     apiError(message, 400, details),
   
   unauthorized: (message = 'Unauthorized') => 
@@ -52,9 +52,9 @@ export const commonErrors = {
   rateLimit: (message = 'Rate limit exceeded') => 
     apiError(message, 429),
   
-  serverError: (message = 'Internal server error', details?: any) => 
+  serverError: (message = 'Internal server error', details?: unknown) => 
     apiError(message, 500, details),
   
-  validationError: (message: string, details?: any) =>
+  validationError: (message: string, details?: unknown) =>
     apiError(message, 400, details)
 };

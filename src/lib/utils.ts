@@ -63,6 +63,6 @@ export function parseIntSafe(value: string | null, defaultValue: number, min?: n
   return parsed;
 }
 
-export function isValidEnum<T extends string>(value: any, enumValues: readonly T[]): value is T {
-  return enumValues.includes(value);
+export function isValidEnum<T extends string>(value: unknown, enumValues: readonly T[]): value is T {
+  return typeof value === 'string' && enumValues.includes(value as T);
 }

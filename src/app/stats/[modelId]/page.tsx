@@ -7,10 +7,7 @@ interface PageProps {
   }>;
 }
 
-export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
-  const { modelId } = await params;
-  const decodedModelId = decodeURIComponent(modelId);
-  
+export async function generateMetadata(): Promise<Metadata> {
   // For now, return generic metadata
   // The actual model data will be fetched on the client side
   return {
@@ -19,7 +16,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   };
 }
 
-export default async function ModelStatsPage({ params }: PageProps) {
+export default async function ModelStatsPage() {
   // Simply render the client component
   // The client component will handle fetching the model data
   return <StatsPageClient />;

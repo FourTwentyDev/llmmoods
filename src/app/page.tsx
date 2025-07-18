@@ -63,7 +63,7 @@ export default function HomePage() {
     }, 300);
 
     return () => clearTimeout(timer);
-  }, [searchQuery, models.length]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [searchQuery, models.length]);
 
   const fetchModels = async () => {
     try {

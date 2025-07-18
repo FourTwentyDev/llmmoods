@@ -1,4 +1,3 @@
-import { NextResponse } from 'next/server';
 import { syncModelsFromOpenRouter, ensureFallbackModels } from '@/lib/models';
 import { cleanupRateLimits } from '@/lib/rate-limit';
 import { apiSuccess, commonErrors } from '@/lib/api-response';
