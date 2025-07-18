@@ -82,6 +82,6 @@ CREATE TABLE IF NOT EXISTS rate_limits (
 DELIMITER //
 CREATE PROCEDURE IF NOT EXISTS cleanup_rate_limits()
 BEGIN
-    DELETE FROM rate_limits WHERE window_start < DATE_SUB(NOW(), INTERVAL 25 HOUR);
+    DELETE FROM rate_limits WHERE DATE(window_start) < DATE_SUB(CURDATE(), INTERVAL 1 DAY);
 END//
 DELIMITER ;

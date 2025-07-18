@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { query } from '@/lib/db';
 import { generateFingerprint } from '@/lib/fingerprint';
 import { checkRateLimit } from '@/lib/rate-limit';
+import { commonErrors, apiSuccess } from '@/lib/api-response';
 
 interface VoteRequest {
   modelId: string;
